@@ -1,0 +1,35 @@
+---
+import Base from '../layouts/Base.astro';
+import PostList from '../components/PostList.astro';
+import { getPosts } from '../lib';
+import { CATEGORIES, SITE_DESCRIPTION } from '../consts';
+const posts = await getPosts();
+---
+<Base>
+  <p class="lead">{SITE_DESCRIPTION}</p>
+  <div class="filters">
+    <button type="button" data-filter="" aria-pressed="true">すべて</button>
+    {CATEGORIES.map((c) => <button type="button" data-filter={c} aria-pressed="false">{c}</button>)}
+  </div>
+  <PostList posts={posts} />
+</Base>
+
+<script>
+  // 分類での絞り込み（静的サイトのままブラウザ側で行う）。/?c=経済分析 でも開ける。
+  const buttons = [...document.querySelectorAll<HTMLButtonElement>('.filters button')];
+  const items = document.querySelectorAll<HTMLLIElement>('.post-list li');
+  function apply(cat: string) {
+    buttons.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.filter === cat)));
+    items.forEach((li) => { li.hidden = cat !== '' && li.dataset.cat !== cat; });
+  }
+  function select(cat: string) {
+    apply(cat);
+    const url = new URL(location.href);
+    if (cat) url.searchParams.set('c', cat); else url.searchParams.delete('c');
+    history.replaceState(null, '', url);
+  }
+  buttons.forEach((b) => b.addEventListener('click', () => select(b.dataset.filter ?? '')));
+  document.querySelectorAll<HTMLAnchorElement>('.post-list .cat').forEach((a) =>
+    a.addEventListener('click', (e) => { e.preventDefault(); select(a.dataset.cat ?? ''); }));
+  apply(new URLSearchParams(location.search).get('c') ?? '');
+</script>

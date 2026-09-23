@@ -1,0 +1,43 @@
+---
+import Base from '../../layouts/Base.astro';
+import { render } from 'astro:content';
+import { getPosts, formatDate, isoDate, readingMinutes, type Post } from '../../lib';
+
+export async function getStaticPaths() {
+  const posts = await getPosts();
+  return posts.map((post, i) => ({
+    params: { slug: post.id },
+    props: { post, newer: posts[i - 1], older: posts[i + 1] },
+  }));
+}
+interface Props { post: Post; newer?: Post; older?: Post }
+const { post, newer, older } = Astro.props;
+const { Content } = await render(post);
+const d = post.data;
+---
+<Base title={d.title} description={d.description} type="article">
+  <article class="post">
+    <header>
+      <div class="meta">
+        <a class="cat" href={`/?c=${encodeURIComponent(d.category)}`}>{d.category}</a>
+        <time datetime={isoDate(d.date)}>{formatDate(d.date)}</time>
+        {d.updated && <span>（{formatDate(d.updated)} 更新）</span>}
+        <span>約{readingMinutes(post.body)}分</span>
+        {d.draft && <span class="draft">下書き</span>}
+      </div>
+      <h1>{d.title}</h1>
+      {d.tags.length > 0 && (
+        <ul class="tags">
+          {d.tags.map((t) => <li><a href={`/tags/${encodeURIComponent(t)}/`}>#{t}</a></li>)}
+        </ul>
+      )}
+    </header>
+    <div class="prose">
+      <Content />
+    </div>
+  </article>
+  <nav class="pager">
+    {older ? <a class="older" href={`/posts/${older.id}/`}><small>前の記事</small>{older.data.title}</a> : <span />}
+    {newer ? <a class="newer" href={`/posts/${newer.id}/`}><small>次の記事</small>{newer.data.title}</a> : <span />}
+  </nav>
+</Base>
