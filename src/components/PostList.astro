@@ -1,0 +1,22 @@
+---
+import { formatDate, isoDate, type Post } from '../lib';
+interface Props { posts: Post[] }
+const { posts } = Astro.props;
+---
+{posts.length === 0 ? (
+  <p class="muted">まだ記事がありません。</p>
+) : (
+  <ul class="post-list">
+    {posts.map((p) => (
+      <li data-cat={p.data.category}>
+        <div class="meta">
+          <time datetime={isoDate(p.data.date)}>{formatDate(p.data.date)}</time>
+          <a class="cat" href={`/?c=${encodeURIComponent(p.data.category)}`} data-cat={p.data.category}>{p.data.category}</a>
+          {p.data.draft && <span class="draft">下書き</span>}
+        </div>
+        <a class="title" href={`/posts/${p.id}/`}>{p.data.title}</a>
+        <p class="desc">{p.data.description}</p>
+      </li>
+    ))}
+  </ul>
+)}
