@@ -6,6 +6,17 @@ import { CATEGORIES, SITE_DESCRIPTION } from '../consts';
 const posts = await getPosts();
 ---
 <Base>
+  <div class="hero" slot="hero">
+    <img
+      src="/images/banner.webp"
+      srcset="/images/banner-960.webp 960w, /images/banner.webp 1920w"
+      sizes="100vw"
+      width="1920"
+      height="600"
+      alt="日本の産業：漁業、農業、発電、造船、製造、建築、土木、宇宙開発、事務、金融の写真を斜めの帯状に並べたバナー"
+      fetchpriority="high"
+    />
+  </div>
   <p class="lead">{SITE_DESCRIPTION}</p>
   <div class="filters">
     <button type="button" data-filter="" aria-pressed="true">すべて</button>
