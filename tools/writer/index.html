@@ -3,311 +3,578 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>ブログ投稿</title>
+<title>管理画面 | 世界経済論考</title>
+<link rel="icon" href="/favicon.ico" />
+<link rel="stylesheet" href="/dist/editor.css" />
 <style>
   :root {
-    --bg: #f3f0ea; --panel: #fffdf9; --fg: #22211f; --muted: #6d6a64; --line: #e0dacf;
-    --accent: #1f3a5f; --accent-fg: #fff; --soft: #e6ecf3; --warn-bg: #fdf3dc; --warn: #7a5a10;
-    --ok: #2f6b3a; --ok-bg: #e5f2e7; --err: #a33; --err-bg: #fbe9e9;
+    --bg: #f3f0ea; --panel: #fffdf9; --paper: #ffffff; --fg: #22211f; --muted: #6d6a64; --line: #e0dacf;
+    --accent: #1f3a5f; --accent-fg: #fff; --soft: #e6ecf3; --hover: #ece7de;
+    --ok: #2f6b3a; --ok-bg: #e3f1e6; --warn: #7a5a10; --warn-bg: #fbf0d6; --err: #a33; --err-bg: #fbe9e9;
+    --draft: #6d6a64; --draft-bg: #ebe7df; --hid: #8a4b12; --hid-bg: #f8e8d8;
     --sans: 'Yu Gothic UI', 'Meiryo', 'Hiragino Sans', sans-serif;
+    --serif: 'Yu Mincho', 'Hiragino Mincho ProN', 'Noto Serif JP', serif;
   }
   @media (prefers-color-scheme: dark) {
     :root {
-      --bg: #141413; --panel: #1d1d1b; --fg: #e6e2da; --muted: #9a958c; --line: #34322e;
-      --accent: #9cb8dc; --accent-fg: #111; --soft: #24303e; --warn-bg: #3a3015; --warn: #e8cf8a;
-      --ok: #9fd3a8; --ok-bg: #1f3223; --err: #f0a0a0; --err-bg: #3a1f1f;
+      --bg: #141413; --panel: #1d1d1b; --paper: #faf8f4; --fg: #e6e2da; --muted: #9a958c; --line: #34322e;
+      --accent: #9cb8dc; --accent-fg: #111; --soft: #24303e; --hover: #262522;
+      --ok: #9fd3a8; --ok-bg: #1f3223; --warn: #e8cf8a; --warn-bg: #3a3015; --err: #f0a0a0; --err-bg: #3a1f1f;
+      --draft: #b5b0a6; --draft-bg: #2c2b28; --hid: #f0b67f; --hid-bg: #3a2a1a;
     }
   }
   * { box-sizing: border-box; }
-  body { margin: 0; background: var(--bg); color: var(--fg); font-family: var(--sans); font-size: 15px; line-height: 1.6; }
-  .app { display: grid; grid-template-columns: 400px 1fr; height: 100vh; }
-  .side { overflow-y: auto; padding: 20px; border-right: 1px solid var(--line); background: var(--panel); }
-  h1 { font-size: 18px; margin: 0 0 16px; }
-  .step { margin-bottom: 22px; }
-  .step > .label { font-size: 13px; font-weight: 600; color: var(--muted); margin-bottom: 6px; display: flex; gap: 6px; align-items: center; }
-  .num { display: inline-grid; place-items: center; width: 20px; height: 20px; border-radius: 50%; background: var(--accent); color: var(--accent-fg); font-size: 12px; }
-  .drop {
-    border: 2px dashed var(--line); border-radius: 10px; padding: 22px 14px; text-align: center; cursor: pointer;
-    color: var(--muted); transition: border-color .15s, background .15s;
+  html, body { height: 100%; }
+  body { margin: 0; background: var(--bg); color: var(--fg); font-family: var(--sans); font-size: 14px; line-height: 1.6; }
+  button { font: inherit; }
+  [hidden] { display: none !important; }
+
+  .top { height: 52px; display: flex; align-items: center; gap: 12px; padding: 0 16px; border-bottom: 1px solid var(--line); background: var(--panel); }
+  .brand { font-family: var(--serif); font-weight: 600; font-size: 17px; }
+  .brand small { font-family: var(--sans); font-weight: 400; color: var(--muted); font-size: 12px; margin-left: 8px; }
+  .top .spacer { flex: 1; }
+  .top a { color: var(--muted); font-size: 13px; }
+
+  .btn {
+    border: 1px solid var(--line); background: var(--panel); color: var(--fg); padding: 6px 14px; border-radius: 7px; cursor: pointer; white-space: nowrap;
   }
-  .drop:hover, body.dragging .drop { border-color: var(--accent); background: var(--soft); color: var(--fg); }
-  .drop strong { display: block; color: var(--fg); font-size: 15px; }
-  .file { margin-top: 8px; font-size: 13px; }
-  label.field { display: block; margin-bottom: 12px; }
-  label.field > span { display: block; font-size: 13px; color: var(--muted); margin-bottom: 3px; }
-  input[type=text], textarea {
-    width: 100%; font: inherit; color: var(--fg); background: var(--bg); border: 1px solid var(--line); border-radius: 6px; padding: 7px 9px;
+  .btn:hover:not(:disabled) { background: var(--hover); }
+  .btn.primary { background: var(--accent); color: var(--accent-fg); border-color: var(--accent); font-weight: 600; }
+  .btn.primary:hover:not(:disabled) { filter: brightness(1.1); background: var(--accent); }
+  .btn.danger { color: var(--err); }
+  .btn:disabled { opacity: .4; cursor: not-allowed; }
+  .menu { position: relative; }
+  .menu-list {
+    position: absolute; right: 0; top: calc(100% + 6px); z-index: 20; background: var(--panel); border: 1px solid var(--line);
+    border-radius: 9px; box-shadow: 0 8px 30px rgba(0,0,0,.15); padding: 6px; min-width: 240px;
   }
-  textarea { resize: vertical; min-height: 72px; }
-  input:focus, textarea:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
-  .hint { font-size: 12px; color: var(--muted); margin-top: 3px; }
-  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
-  .chip {
-    font: inherit; font-size: 13px; padding: 3px 12px; border-radius: 999px; border: 1px solid var(--line);
-    background: transparent; color: var(--fg); cursor: pointer;
-  }
-  .chip[aria-pressed=true] { background: var(--accent); color: var(--accent-fg); border-color: var(--accent); }
-  .chip.small { font-size: 12px; padding: 1px 9px; color: var(--muted); }
-  .tagbox { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; border: 1px solid var(--line); background: var(--bg); border-radius: 6px; padding: 5px; }
-  .tagbox input { border: 0; background: transparent; flex: 1; min-width: 120px; padding: 3px; }
-  .tagbox input:focus { outline: 0; }
-  .tag { background: var(--soft); color: var(--accent); border-radius: 4px; padding: 1px 4px 1px 8px; font-size: 13px; display: inline-flex; gap: 4px; align-items: center; }
-  .tag button { border: 0; background: none; color: inherit; cursor: pointer; font-size: 14px; line-height: 1; padding: 0 3px; }
-  .note { font-size: 13px; border-radius: 6px; padding: 8px 10px; margin: 8px 0; }
-  .note.warn { background: var(--warn-bg); color: var(--warn); }
+  .menu-list button { display: block; width: 100%; text-align: left; border: 0; background: none; color: var(--fg); padding: 8px 10px; border-radius: 6px; cursor: pointer; }
+  .menu-list button:hover { background: var(--hover); }
+  .menu-list small { display: block; color: var(--muted); font-size: 12px; }
+
+  .app { display: grid; grid-template-columns: 320px 1fr; height: calc(100% - 52px); }
+  .side { border-right: 1px solid var(--line); background: var(--panel); display: flex; flex-direction: column; min-height: 0; }
+  .tabs { display: flex; gap: 4px; padding: 10px 10px 6px; flex-wrap: wrap; }
+  .tab { border: 0; background: none; color: var(--muted); padding: 4px 10px; border-radius: 999px; cursor: pointer; font-size: 13px; }
+  .tab[aria-pressed=true] { background: var(--accent); color: var(--accent-fg); }
+  .tab .n { opacity: .7; margin-left: 3px; font-size: 12px; }
+  .search { margin: 4px 10px 8px; }
+  .search input { width: 100%; }
+  .list { overflow-y: auto; flex: 1; padding: 0 6px 12px; }
+  .item { display: block; width: 100%; text-align: left; border: 0; background: none; color: var(--fg); padding: 10px; border-radius: 8px; cursor: pointer; }
+  .item:hover { background: var(--hover); }
+  .item[aria-current=true] { background: var(--soft); }
+  .item .t { font-family: var(--serif); font-weight: 600; font-size: 14.5px; line-height: 1.45; display: block; margin: 3px 0 0; }
+  .item .m { display: flex; gap: 6px; align-items: center; color: var(--muted); font-size: 12px; flex-wrap: wrap; }
+  .badge { font-size: 11px; padding: 0 7px; border-radius: 4px; line-height: 18px; white-space: nowrap; }
+  .badge.published { background: var(--ok-bg); color: var(--ok); }
+  .badge.draft { background: var(--draft-bg); color: var(--draft); }
+  .badge.hidden { background: var(--hid-bg); color: var(--hid); }
+  .badge.pending { background: var(--warn-bg); color: var(--warn); }
+  .empty-list { color: var(--muted); padding: 16px 10px; font-size: 13px; }
+
+  .main { display: flex; flex-direction: column; min-width: 0; min-height: 0; }
+  .welcome { flex: 1; display: grid; place-items: center; color: var(--muted); text-align: center; padding: 24px; }
+  .welcome h2 { font-family: var(--serif); color: var(--fg); font-weight: 600; margin: 0 0 8px; }
+  .bar { display: flex; align-items: center; gap: 8px; padding: 10px 16px; border-bottom: 1px solid var(--line); background: var(--panel); flex-wrap: wrap; }
+  .bar .spacer { flex: 1; }
+  .seg { display: inline-flex; border: 1px solid var(--line); border-radius: 7px; overflow: hidden; }
+  .seg button { border: 0; background: none; color: var(--muted); padding: 5px 12px; cursor: pointer; }
+  .seg button[aria-pressed=true] { background: var(--soft); color: var(--accent); font-weight: 600; }
+  .savestate { color: var(--muted); font-size: 12px; }
+  .note { font-size: 13px; padding: 8px 16px; border-bottom: 1px solid var(--line); }
   .note.ok { background: var(--ok-bg); color: var(--ok); }
+  .note.warn { background: var(--warn-bg); color: var(--warn); }
   .note.err { background: var(--err-bg); color: var(--err); white-space: pre-wrap; }
   .note a { color: inherit; font-weight: 600; }
-  .buttons { display: flex; gap: 8px; }
-  .btn {
-    flex: 1; font: inherit; font-weight: 600; padding: 10px; border-radius: 8px; cursor: pointer;
-    border: 1px solid var(--accent); background: transparent; color: var(--accent);
+
+  .scroll { flex: 1; overflow-y: auto; }
+  .doc { max-width: 820px; margin: 0 auto; padding: 24px 24px 80px; }
+  .title-input {
+    width: 100%; border: 0; background: transparent; color: var(--fg); font-family: var(--serif); font-weight: 600;
+    font-size: 28px; line-height: 1.4; padding: 4px 0; outline: none; resize: none; overflow: hidden; min-height: 0;
   }
-  .btn.primary { background: var(--accent); color: var(--accent-fg); }
-  .btn:disabled { opacity: .4; cursor: not-allowed; }
-  details { margin-top: 18px; font-size: 13px; color: var(--muted); }
-  details pre { white-space: pre-wrap; word-break: break-all; font-size: 12px; background: var(--bg); padding: 10px; border-radius: 6px; max-height: 320px; overflow: auto; }
-  .main { display: flex; flex-direction: column; min-width: 0; }
-  .bar { padding: 10px 16px; border-bottom: 1px solid var(--line); font-size: 13px; color: var(--muted); display: flex; justify-content: space-between; gap: 12px; }
-  .bar a { color: var(--accent); }
-  iframe { flex: 1; width: 100%; border: 0; background: #fff; }
-  .empty { flex: 1; display: grid; place-items: center; color: var(--muted); text-align: center; padding: 24px; }
-  .busy { position: fixed; inset: 0; background: rgba(0,0,0,.25); display: none; place-items: center; z-index: 10; }
-  .busy.on { display: grid; }
-  .busy div { background: var(--panel); padding: 16px 24px; border-radius: 10px; box-shadow: 0 6px 30px rgba(0,0,0,.2); }
-  [hidden] { display: none !important; }
-  @media (max-width: 860px) { .app { grid-template-columns: 1fr; height: auto; } .main { min-height: 80vh; } }
+  .title-input::placeholder { color: var(--muted); opacity: .6; }
+  details.info { border: 1px solid var(--line); border-radius: 10px; background: var(--panel); margin: 10px 0 18px; }
+  details.info > summary { cursor: pointer; padding: 9px 14px; color: var(--muted); font-size: 13px; list-style: none; display: flex; gap: 8px; align-items: center; }
+  details.info > summary::before { content: '▸'; transition: transform .15s; }
+  details.info[open] > summary::before { transform: rotate(90deg); }
+  .info-body { padding: 2px 14px 14px; display: grid; gap: 12px; }
+  .field > span { display: block; font-size: 12px; color: var(--muted); margin-bottom: 3px; }
+  input[type=text], textarea { width: 100%; font: inherit; color: var(--fg); background: var(--bg); border: 1px solid var(--line); border-radius: 6px; padding: 6px 9px; }
+  textarea { resize: vertical; min-height: 58px; }
+  input:focus, textarea:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
+  input:disabled { opacity: .6; }
+  .hint { font-size: 12px; color: var(--muted); margin-top: 3px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip { font-size: 13px; padding: 2px 12px; border-radius: 999px; border: 1px solid var(--line); background: transparent; color: var(--fg); cursor: pointer; }
+  .chip[aria-pressed=true] { background: var(--accent); color: var(--accent-fg); border-color: var(--accent); }
+  .chip.small { font-size: 12px; padding: 0 9px; color: var(--muted); }
+  .tagbox { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; border: 1px solid var(--line); background: var(--bg); border-radius: 6px; padding: 4px; }
+  .tagbox input { border: 0 !important; background: transparent !important; flex: 1; min-width: 120px; padding: 2px 4px !important; outline: none !important; }
+  .tag { background: var(--soft); color: var(--accent); border-radius: 4px; padding: 0 3px 0 8px; font-size: 13px; display: inline-flex; gap: 3px; align-items: center; }
+  .tag button { border: 0; background: none; color: inherit; cursor: pointer; padding: 0 3px; }
+
+  .paper { background: var(--paper); border: 1px solid var(--line); border-radius: 10px; min-height: 480px; color: #22211f; }
+  .paper .milkdown { --crepe-font-default: var(--serif); --crepe-font-title: var(--serif); background: transparent; }
+  .paper .milkdown .ProseMirror { padding: 28px 56px 60px; font-family: var(--serif); font-size: 17px; line-height: 2; }
+  .paper .milkdown .ProseMirror h2 { font-size: 22px; }
+  .paper .milkdown .ProseMirror h3 { font-size: 18px; }
+  .paper .milkdown .ProseMirror p { font-size: 17px; }
+
+  iframe.preview { flex: 1; width: 100%; border: 0; background: #fff; }
+
+  .overlay { position: fixed; inset: 0; background: rgba(0,0,0,.35); display: grid; place-items: center; z-index: 50; padding: 16px; }
+  .dialog { background: var(--panel); border-radius: 12px; padding: 20px 22px; max-width: 440px; width: 100%; box-shadow: 0 10px 40px rgba(0,0,0,.25); }
+  .dialog h3 { margin: 0 0 8px; font-size: 16px; }
+  .dialog p { margin: 0 0 16px; color: var(--muted); white-space: pre-wrap; }
+  .dialog .row { display: flex; justify-content: flex-end; gap: 8px; }
+  .busy .dialog { text-align: center; }
+  .drop-veil { position: fixed; inset: 0; background: rgba(31,58,95,.18); border: 3px dashed var(--accent); z-index: 40; display: grid; place-items: center; font-size: 18px; font-weight: 600; color: var(--accent); pointer-events: none; }
+
+  @media (max-width: 900px) {
+    .app { grid-template-columns: 1fr; height: auto; }
+    .side { max-height: 40vh; border-right: 0; border-bottom: 1px solid var(--line); }
+    .paper .milkdown .ProseMirror { padding: 20px 20px 40px; }
+  }
 </style>
 </head>
 <body>
+<header class="top">
+  <div class="brand">世界経済論考<small>管理画面</small></div>
+  <div class="spacer"></div>
+  <a id="sitelink" href="#" target="_blank">公開中のブログを開く ↗</a>
+  <div class="menu">
+    <button class="btn primary" id="newbtn" type="button">＋ 新しい記事</button>
+    <div class="menu-list" id="newmenu" hidden>
+      <button type="button" id="new-blank">ブラウザで書く<small>空の記事から書き始める</small></button>
+      <button type="button" id="new-word">Word から取り込む<small>書き上げた .docx を読み込む</small></button>
+    </div>
+  </div>
+</header>
+
 <div class="app">
   <aside class="side">
-    <h1>ブログ投稿</h1>
-
-    <div class="step">
-      <div class="label"><span class="num">1</span>Word ファイルを読み込む</div>
-      <div class="drop" id="drop" tabindex="0" role="button">
-        <strong>ここに Word ファイルをドロップ</strong>
-        またはクリックして選ぶ（.docx）
-      </div>
-      <input type="file" id="picker" accept=".docx" hidden />
-      <div class="file" id="fileinfo"></div>
-      <div id="warnings"></div>
-    </div>
-
-    <fieldset id="form" disabled style="border:0;padding:0;margin:0">
-      <div class="step">
-        <div class="label"><span class="num">2</span>記事の情報を確認する</div>
-        <label class="field"><span>タイトル</span><input type="text" id="title" /></label>
-        <label class="field">
-          <span>説明文</span>
-          <textarea id="description"></textarea>
-          <div class="hint">記事一覧・検索結果・SNS で表示される1〜2文。最初の段落から自動で入れています。</div>
-        </label>
-        <div class="field" style="margin-bottom:12px">
-          <span style="display:block;font-size:13px;color:var(--muted);margin-bottom:5px">分類</span>
-          <div class="chips" id="cats"></div>
-        </div>
-        <div class="field" style="margin-bottom:12px">
-          <span style="display:block;font-size:13px;color:var(--muted);margin-bottom:5px">タグ</span>
-          <div class="tagbox" id="tagbox"><input type="text" id="taginput" placeholder="入力して Enter" /></div>
-          <div class="chips" id="tagsuggest" style="margin-top:6px"></div>
-        </div>
-        <label class="field">
-          <span>URL名</span>
-          <input type="text" id="slug" list="slugs" spellcheck="false" />
-          <datalist id="slugs"></datalist>
-          <div class="hint" id="slughint"></div>
-        </label>
-      </div>
-
-      <div class="step">
-        <div class="label"><span class="num">3</span>保存して見え方を確かめる → 公開する</div>
-        <div class="buttons">
-          <button class="btn" id="save" type="button">下書き保存・プレビュー</button>
-          <button class="btn primary" id="publish" type="button" disabled>公開する</button>
-        </div>
-        <div id="result"></div>
-      </div>
-    </fieldset>
-
-    <details id="raw" hidden>
-      <summary>変換結果（Markdown）を見る</summary>
-      <pre id="md"></pre>
-    </details>
+    <div class="tabs" id="tabs"></div>
+    <div class="search"><input type="text" id="q" placeholder="タイトル・タグで検索" /></div>
+    <div class="list" id="list"></div>
   </aside>
 
-  <section class="main">
-    <div class="bar"><span id="bartext">プレビュー</span><a id="barlink" href="#" target="_blank" hidden>別のタブで開く</a></div>
-    <div class="empty" id="empty">
+  <section class="main" id="main">
+    <div class="welcome" id="welcome">
       <div>
-        Word で書き上げた文章を左に読み込み、「下書き保存・プレビュー」を押すと<br />
-        ブログでの実際の見え方がここに表示されます。<br /><br />
-        <small>下書きはこの PC の中だけにあり、「公開する」を押すまで誰にも見えません。</small>
+        <h2>記事を選ぶか、新しく書きましょう</h2>
+        左の一覧から記事を選ぶと編集できます。<br />
+        Word ファイルをこの画面にドロップしても、新しい記事として取り込めます。
       </div>
     </div>
-    <iframe id="preview" hidden title="プレビュー"></iframe>
+
+    <div id="editorview" hidden style="display:flex;flex-direction:column;flex:1;min-height:0">
+      <div class="bar">
+        <span class="badge" id="statusbadge"></span>
+        <span class="savestate" id="savestate"></span>
+        <div class="spacer"></div>
+        <div class="seg"><button type="button" id="mode-edit" aria-pressed="true">編集</button><button type="button" id="mode-preview" aria-pressed="false">プレビュー</button></div>
+        <button class="btn" type="button" id="save">保存</button>
+        <button class="btn primary" type="button" id="publish">公開する</button>
+        <div class="menu">
+          <button class="btn" type="button" id="morebtn" aria-label="その他の操作">…</button>
+          <div class="menu-list" id="moremenu" hidden>
+            <button type="button" id="import-word">Word で本文を置き換える<small>書き直した .docx を読み込む</small></button>
+            <button type="button" id="unpublish">一時非公開にする<small>サイトから外す。記事は手元に残る</small></button>
+            <button type="button" id="open-live">公開ページを開く</button>
+            <button type="button" id="delete" style="color:var(--err)">削除する<small>ゴミ箱フォルダに移す</small></button>
+          </div>
+        </div>
+      </div>
+      <div id="notes"></div>
+
+      <div class="scroll" id="editpane">
+        <div class="doc">
+          <textarea class="title-input" id="title" rows="1" placeholder="タイトル"></textarea>
+          <details class="info" id="info">
+            <summary id="infosummary">記事の情報（分類・タグ・説明文・URL名）</summary>
+            <div class="info-body">
+              <div class="field"><span>分類</span><div class="chips" id="cats"></div></div>
+              <div class="field">
+                <span>タグ</span>
+                <div class="tagbox" id="tagbox"><input type="text" id="taginput" placeholder="入力して Enter" /></div>
+                <div class="chips" id="tagsuggest" style="margin-top:6px"></div>
+              </div>
+              <label class="field">
+                <span>説明文</span>
+                <textarea id="description" placeholder="空欄なら本文の最初の段落から自動で作ります"></textarea>
+                <div class="hint">記事一覧・検索結果・SNS で表示される1〜2文。</div>
+              </label>
+              <label class="field">
+                <span>URL名</span>
+                <input type="text" id="slug" spellcheck="false" />
+                <div class="hint" id="slughint"></div>
+              </label>
+            </div>
+          </details>
+          <div class="paper" id="paper"></div>
+        </div>
+      </div>
+      <iframe class="preview" id="preview" hidden title="プレビュー"></iframe>
+    </div>
   </section>
 </div>
-<div class="busy" id="busy"><div id="busytext">処理中…</div></div>
 
+<input type="file" id="picker" accept=".docx" hidden />
+<div class="drop-veil" id="veil" hidden>Word ファイルをドロップして取り込む</div>
+<div class="overlay" id="dialog" hidden><div class="dialog"><h3 id="dtitle"></h3><p id="dtext"></p><div class="row" id="drow"></div></div></div>
+<div class="overlay busy" id="busy" hidden><div class="dialog" id="busytext">処理中…</div></div>
+
+<script src="/dist/editor.js"></script>
 <script>
 const $ = (id) => document.getElementById(id);
-let meta = { categories: [], tags: [], posts: [], today: '' };
-let current = null;   // 変換結果 { id, ... }
+const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const STATUS = { published: '公開中', draft: '下書き', hidden: '非公開' };
+
+let meta = { categories: [], tags: [], today: '', site: '', blog: '' };
+let posts = [];
+let filter = 'all';
+let cur = null;        // { slug|null(新規), status, source }
+let editor = null;
 let category = '';
 let tags = [];
-let savedOnce = false;
+let dirty = false;
+let mode = 'edit';
 
-function busy(on, text = '処理中…') { $('busy').classList.toggle('on', on); $('busytext').textContent = text; }
-function note(el, kind, html) { el.innerHTML = html ? `<div class="note ${kind}">${html}</div>` : ''; }
-const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+// ---------- 共通 ----------
+async function call(method, path, body, headers) {
+  const res = await fetch(path, { method, headers: headers ?? (body ? { 'Content-Type': 'application/json' } : {}), body: body instanceof Blob ? body : body ? JSON.stringify(body) : undefined });
+  const r = await res.json();
+  if (!res.ok) throw new Error(r.error || '失敗しました');
+  return r;
+}
+function busy(text) { $('busy').hidden = !text; $('busytext').textContent = text || ''; }
+function note(kind, html) { $('notes').innerHTML = html ? `<div class="note ${kind}">${html}</div>` : ''; }
+function dialog(title, text, buttons) {
+  return new Promise((resolve) => {
+    $('dtitle').textContent = title; $('dtext').textContent = text;
+    $('drow').innerHTML = '';
+    for (const b of buttons) {
+      const el = document.createElement('button');
+      el.className = `btn ${b.kind ?? ''}`; el.textContent = b.label; el.type = 'button';
+      el.onclick = () => { $('dialog').hidden = true; resolve(b.value); };
+      $('drow').appendChild(el);
+    }
+    $('dialog').hidden = false;
+    $('drow').lastChild?.focus();
+  });
+}
+const confirmBox = (title, text, ok, kind = 'primary') => dialog(title, text, [{ label: 'やめる', value: false }, { label: ok, value: true, kind }]);
 
-async function loadMeta() {
-  meta = await (await fetch('/api/meta')).json();
+async function guardUnsaved() {
+  if (!dirty) return true;
+  const v = await dialog('保存していない変更があります', '変更を保存してから移りますか？', [
+    { label: 'キャンセル', value: 'cancel' }, { label: '保存しない', value: 'discard' }, { label: '保存する', value: 'save', kind: 'primary' },
+  ]);
+  if (v === 'cancel') return false;
+  if (v === 'save') return await save();
+  return true;
+}
+addEventListener('beforeunload', (e) => { if (dirty) { e.preventDefault(); e.returnValue = ''; } });
+
+// ---------- 一覧 ----------
+async function loadList() {
+  posts = (await call('GET', '/api/posts')).posts;
+  const count = (s) => posts.filter((p) => s === 'all' || p.status === s).length;
+  $('tabs').innerHTML = [['all', 'すべて'], ['published', '公開中'], ['draft', '下書き'], ['hidden', '非公開']]
+    .map(([k, l]) => `<button class="tab" data-f="${k}" aria-pressed="${filter === k}">${l}<span class="n">${count(k)}</span></button>`).join('');
+  $('tabs').querySelectorAll('.tab').forEach((b) => b.onclick = () => { filter = b.dataset.f; loadList(); });
+  renderList();
+}
+function renderList() {
+  const q = $('q').value.trim().toLowerCase();
+  const shown = posts.filter((p) => (filter === 'all' || p.status === filter) && (!q || (p.title + ' ' + p.tags.join(' ')).toLowerCase().includes(q)));
+  $('list').innerHTML = shown.length ? shown.map((p) => `
+    <button class="item" data-slug="${esc(p.slug)}" aria-current="${cur?.slug === p.slug}">
+      <span class="m"><span class="badge ${p.status}">${STATUS[p.status]}</span>${p.pending ? '<span class="badge pending">未反映の変更</span>' : ''}<span>${esc(p.date)}</span><span>${esc(p.category)}</span></span>
+      <span class="t">${esc(p.title || '（無題）')}</span>
+    </button>`).join('') : `<div class="empty-list">${q ? '見つかりません' : 'この分類の記事はありません'}</div>`;
+  $('list').querySelectorAll('.item').forEach((b) => b.onclick = () => openPost(b.dataset.slug));
+}
+$('q').addEventListener('input', renderList);
+
+// ---------- 記事の情報 ----------
+function renderCats() {
   $('cats').innerHTML = meta.categories.map((c) => `<button type="button" class="chip" data-cat="${esc(c)}" aria-pressed="${c === category}">${esc(c)}</button>`).join('');
-  $('cats').querySelectorAll('button').forEach((b) => b.onclick = () => setCategory(b.dataset.cat));
-  $('slugs').innerHTML = meta.posts.map((p) => `<option value="${esc(p.slug)}">${esc(p.title)}</option>`).join('');
-  renderTags();
+  $('cats').querySelectorAll('button').forEach((b) => b.onclick = () => { category = b.dataset.cat; renderCats(); markDirty(); summarizeInfo(); });
 }
-
-function setCategory(c) {
-  category = c;
-  $('cats').querySelectorAll('button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.cat === c)));
-  dirty();
-}
-
 function renderTags() {
-  const box = $('tagbox');
-  box.querySelectorAll('.tag').forEach((t) => t.remove());
+  $('tagbox').querySelectorAll('.tag').forEach((t) => t.remove());
   tags.forEach((t, i) => {
     const el = document.createElement('span');
     el.className = 'tag';
     el.innerHTML = `#${esc(t)}<button type="button" aria-label="削除">×</button>`;
-    el.querySelector('button').onclick = () => { tags.splice(i, 1); renderTags(); dirty(); };
-    box.insertBefore(el, $('taginput'));
+    el.querySelector('button').onclick = () => { tags.splice(i, 1); renderTags(); markDirty(); };
+    $('tagbox').insertBefore(el, $('taginput'));
   });
   const rest = meta.tags.filter((t) => !tags.includes(t));
-  $('tagsuggest').innerHTML = rest.length ? rest.map((t) => `<button type="button" class="chip small" data-tag="${esc(t)}">+ ${esc(t)}</button>`).join('') : '';
+  $('tagsuggest').innerHTML = rest.map((t) => `<button type="button" class="chip small" data-tag="${esc(t)}">+ ${esc(t)}</button>`).join('');
   $('tagsuggest').querySelectorAll('button').forEach((b) => b.onclick = () => addTag(b.dataset.tag));
+  summarizeInfo();
 }
-function addTag(t) {
-  t = t.trim().replace(/^#/, '');
-  if (t && !tags.includes(t)) { tags.push(t); renderTags(); dirty(); }
-}
+function addTag(t) { t = t.trim().replace(/^#/, ''); if (t && !tags.includes(t)) { tags.push(t); renderTags(); markDirty(); } }
 $('taginput').addEventListener('keydown', (e) => {
-  if ((e.key === 'Enter' || e.key === ',' || e.key === '、') && !e.isComposing) {
-    e.preventDefault(); addTag(e.target.value); e.target.value = '';
-  } else if (e.key === 'Backspace' && !e.target.value && tags.length) { tags.pop(); renderTags(); dirty(); }
+  if ((e.key === 'Enter' || e.key === ',' || e.key === '、') && !e.isComposing) { e.preventDefault(); addTag(e.target.value); e.target.value = ''; }
+  else if (e.key === 'Backspace' && !e.target.value && tags.length) { tags.pop(); renderTags(); markDirty(); }
 });
 $('taginput').addEventListener('blur', (e) => { if (e.target.value) { addTag(e.target.value); e.target.value = ''; } });
-
+function summarizeInfo() {
+  const parts = [category || '分類未選択', tags.length ? tags.map((t) => '#' + t).join(' ') : 'タグなし'];
+  $('infosummary').textContent = `記事の情報：${parts.join(' ／ ')}`;
+}
 function updateSlugHint() {
   const s = $('slug').value.trim();
-  const ex = meta.posts.find((p) => p.slug === s);
-  const url = `kazuma-2003.github.io/posts/${s || '…'}/`;
-  if (s && !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(s)) $('slughint').innerHTML = '<span style="color:var(--err)">半角の英小文字・数字・ハイフンだけが使えます</span>';
-  else if (ex) $('slughint').innerHTML = `${esc(url)}<br><b>既存の記事「${esc(ex.title)}」を上書きします</b>${ex.draft ? '' : '（公開済み。更新日が付きます）'}`;
-  else $('slughint').textContent = `${url}（公開後は変えないでください。リンクが切れます）`;
+  if (cur?.status === 'published') { $('slughint').textContent = `${meta.site}/posts/${s}/（公開中の記事の URL名は変えられません）`; return; }
+  if (s && !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(s)) { $('slughint').innerHTML = '<span style="color:var(--err)">半角の英小文字・数字・ハイフンだけが使えます</span>'; return; }
+  $('slughint').textContent = `${meta.site}/posts/${s || '…'}/（公開後は変えられません）`;
 }
-$('slug').addEventListener('input', () => { updateSlugHint(); dirty(); });
-['title', 'description'].forEach((id) => $(id).addEventListener('input', dirty));
+$('slug').addEventListener('input', () => { updateSlugHint(); markDirty(); });
+$('title').addEventListener('input', () => { autosize(); markDirty(); });
+$('description').addEventListener('input', markDirty);
+// タイトル欄の高さを内容に合わせる（横幅が未確定のときは測らない）
+function autosize() { const t = $('title'); if (!t.clientWidth) return; t.style.height = 'auto'; t.style.height = t.scrollHeight + 'px'; }
+// 横幅が決まった・変わったときにも測り直す
+let lastTitleWidth = 0;
+new ResizeObserver(() => { const w = $('title').clientWidth; if (w && w !== lastTitleWidth) { lastTitleWidth = w; autosize(); } }).observe($('title'));
 
-// 保存後に内容を変えたら、もう一度プレビューしてから公開させる
-function dirty() { if (savedOnce) { $('publish').disabled = true; note($('result'), 'warn', '内容を変更しました。もう一度「下書き保存・プレビュー」を押してください。'); } }
+function markDirty() { if (!cur) return; dirty = true; $('savestate').textContent = '未保存の変更あり'; }
+function markClean(text = '保存済み') { dirty = false; $('savestate').textContent = text; }
 
-function suggestSlug(title, filename) {
-  // 同じ Word ファイル・同じタイトルの記事があれば、その記事の更新とみなす
-  const same = meta.posts.find((p) => (p.source && p.source === filename) || (title && p.title === title));
-  if (same) return same;
+function uniqueSlug() {
   let s = meta.today, n = 2;
-  while (meta.posts.some((p) => p.slug === s)) s = `${meta.today}-${n++}`;
-  return { slug: s };
+  while (posts.some((p) => p.slug === s)) s = `${meta.today}-${n++}`;
+  return s;
 }
 
-async function handleFile(file) {
-  if (!file) return;
-  busy(true, 'Word ファイルを変換しています…');
-  note($('result'), '', '');
+// ---------- エディタ ----------
+async function upload(file) {
+  const r = await call('POST', '/api/upload', file, { 'X-Filename': encodeURIComponent(file.name) });
+  return r.url;
+}
+async function mountEditor(markdown) {
+  if (editor) { await editor.destroy(); editor = null; }
+  $('paper').innerHTML = '';
+  editor = await window.createEditor($('paper'), markdown, { upload, onChange: markDirty });
+}
+
+function showEditor(status) {
+  $('welcome').hidden = true;
+  $('editorview').hidden = false;
+  setMode('edit');
+  const b = $('statusbadge');
+  b.className = `badge ${status}`; b.textContent = status === 'new' ? '新規（未保存）' : STATUS[status];
+  $('publish').textContent = status === 'published' ? '変更を公開' : status === 'hidden' ? '再公開する' : '公開する';
+  $('unpublish').hidden = status !== 'published';
+  $('open-live').hidden = status !== 'published';
+  $('delete').hidden = status === 'new';
+  $('slug').disabled = status === 'published';
+  updatePublishButton();
+  updateSlugHint();
+}
+function updatePublishButton() {
+  const p = posts.find((x) => x.slug === cur?.slug);
+  // 公開中で手元の変更が無ければ「変更を公開」は不要
+  $('publish').disabled = cur?.status === 'published' && !dirty && !p?.pending;
+}
+
+async function openPost(slug) {
+  if (cur?.slug === slug) return;
+  if (!(await guardUnsaved())) return;
+  busy('読み込んでいます…');
   try {
-    const res = await fetch('/api/convert', { method: 'POST', headers: { 'X-Filename': encodeURIComponent(file.name) }, body: file });
-    const r = await res.json();
-    if (!res.ok) throw new Error(r.error);
-    current = r;
-    savedOnce = false;
-    $('fileinfo').innerHTML = `読み込み済み：<b>${esc(file.name)}</b>${r.images.length ? `（画像 ${r.images.length} 枚）` : ''}`;
-    note($('warnings'), 'warn', r.warnings.map(esc).join('<br>'));
-    const ex = suggestSlug(r.title, file.name);
-    $('title').value = r.title || ex.title || '';
-    $('description').value = ex.description || r.description;
-    tags = ex.tags ? [...ex.tags] : [];
-    renderTags();
-    setCategory(ex.category || '');
-    $('slug').value = ex.slug;
-    updateSlugHint();
-    $('form').disabled = false;
-    $('publish').disabled = true;
-    $('raw').hidden = false;
-    $('md').textContent = r.markdown;
-    if (ex.title) note($('result'), 'ok', `以前の記事「${esc(ex.title)}」の更新として読み込みました。別の記事にする場合は URL名を変えてください。`);
-  } catch (e) {
-    note($('warnings'), 'err', esc(e.message));
-  } finally { busy(false); }
+    const r = await call('GET', `/api/post?slug=${encodeURIComponent(slug)}`);
+    cur = { slug, status: r.status, source: r.data.source };
+    $('title').value = r.data.title ?? '';
+    $('description').value = r.data.description ?? '';
+    $('slug').value = slug;
+    category = r.data.category ?? ''; tags = Array.isArray(r.data.tags) ? [...r.data.tags] : [];
+    renderCats(); renderTags();
+    $('info').open = false;
+    note('', '');
+    showEditor(r.status);
+    await mountEditor(r.body);
+    autosize();
+    markClean(r.data.updated ? `最終更新 ${r.data.updated}` : `公開日・作成日 ${r.data.date}`);
+    updatePublishButton();
+    renderList();
+  } catch (e) { note('err', esc(e.message)); }
+  finally { busy(''); }
 }
 
-async function save(mode) {
-  const payload = { id: current.id, title: $('title').value, description: $('description').value, category, tags, slug: $('slug').value.trim(), mode };
-  const res = await fetch('/api/save', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-  const r = await res.json();
-  if (!res.ok) throw new Error(r.error);
-  return r;
+async function newPost({ title = '', description = '', markdown = '', source = '', warnings = [] } = {}) {
+  if (!(await guardUnsaved())) return false;
+  cur = { slug: null, status: 'new', source };
+  const same = source && posts.find((p) => p.source === source);
+  $('title').value = title;
+  $('description').value = description;
+  $('slug').value = uniqueSlug();
+  category = ''; tags = [];
+  renderCats(); renderTags();
+  $('info').open = true;
+  showEditor('new');
+  await mountEditor(markdown);
+  autosize();
+  dirty = true; $('savestate').textContent = '未保存';
+  const msgs = warnings.map(esc);
+  if (same) msgs.push(`同じ Word ファイルから作った記事「${esc(same.title)}」があります。その記事を直す場合は、一覧からその記事を開き「…」→「Word で本文を置き換える」を使ってください。`);
+  note(msgs.length ? 'warn' : '', msgs.join('<br>'));
+  renderList();
+  (title ? $('info') : $('title')).focus?.();
+  return true;
 }
 
-$('save').onclick = async () => {
-  busy(true, '保存しています…');
+async function save() {
+  if (!cur) return false;
+  const payload = {
+    originalSlug: cur.slug, slug: $('slug').value.trim(), title: $('title').value, description: $('description').value,
+    category, tags, body: editor.getMarkdown(), source: cur.source,
+  };
+  if (!payload.category) { $('info').open = true; note('err', '分類を選んでください（記事の情報）。'); return false; }
+  busy('保存しています…');
   try {
-    const r = await save('draft');
-    savedOnce = true;
-    await loadMeta();
-    updateSlugHint();
-    // 開発サーバーが新しいファイルを読み込むのを少し待つ
-    await new Promise((ok) => setTimeout(ok, 700));
-    $('empty').hidden = true;
-    $('preview').hidden = false;
-    $('preview').src = r.preview + '?t=' + Date.now();
-    $('barlink').href = r.preview; $('barlink').hidden = false;
-    $('bartext').textContent = 'プレビュー（下書き：まだ公開されていません）';
-    $('publish').disabled = false;
-    note($('result'), 'ok', '下書きとして保存しました。右のプレビューを確認し、よければ「公開する」を押してください。');
-  } catch (e) { note($('result'), 'err', esc(e.message)); }
-  finally { busy(false); }
+    const r = await call('POST', '/api/save', payload);
+    const wasNew = !cur.slug;
+    cur.slug = r.slug; cur.status = r.status;
+    markClean();
+    await loadList();
+    if (wasNew) showEditor(r.status);
+    if (r.body !== payload.body) { // 画像の置き場所が変わったらエディタにも反映
+      await mountEditor(r.body); markClean();
+    }
+    updatePublishButton();
+    note('', '');
+    return true;
+  } catch (e) { note('err', esc(e.message)); return false; }
+  finally { busy(''); }
+}
+$('save').onclick = save;
+addEventListener('keydown', (e) => { if ((e.ctrlKey || e.metaKey) && e.key === 's') { e.preventDefault(); if (cur) save(); } });
+
+// ---------- プレビュー ----------
+async function setMode(m) {
+  mode = m;
+  $('mode-edit').setAttribute('aria-pressed', String(m === 'edit'));
+  $('mode-preview').setAttribute('aria-pressed', String(m === 'preview'));
+  $('editpane').hidden = m !== 'edit';
+  $('preview').hidden = m !== 'preview';
+}
+$('mode-edit').onclick = () => setMode('edit');
+$('mode-preview').onclick = async () => {
+  if (dirty || !cur.slug) { if (!(await save())) return; }
+  setMode('preview');
+  await new Promise((ok) => setTimeout(ok, 600)); // 開発サーバーが保存を読み込むのを待つ
+  $('preview').src = `${meta.blog}/posts/${cur.slug}/?t=${Date.now()}`;
 };
 
+// ---------- 公開・非公開・削除 ----------
 $('publish').onclick = async () => {
-  if (!confirm(`「${$('title').value}」を公開します。インターネット上の誰でも読めるようになります。よろしいですか？`)) return;
-  busy(true, '公開しています…（GitHub に送信中）');
+  const st = cur.status;
+  const title = $('title').value || '（無題）';
+  const msg = st === 'published' ? `「${title}」の変更をブログに反映します。` : `「${title}」を${st === 'hidden' ? '再' : ''}公開します。インターネット上の誰でも読めるようになります。`;
+  if (!(await confirmBox(st === 'published' ? '変更を公開' : '公開する', msg, st === 'published' ? '反映する' : '公開する'))) return;
+  if ((dirty || !cur.slug) && !(await save())) return;
+  busy('公開しています…（GitHub に送信中）');
   try {
-    const r = await save('publish');
-    await loadMeta();
-    updateSlugHint();
-    $('publish').disabled = true;
-    $('bartext').textContent = 'プレビュー（公開済み）';
-    note($('result'), 'ok', `公開しました。1〜2分でブログに反映されます。<br><a href="${esc(r.url)}" target="_blank">${esc(r.url)}</a>`);
-  } catch (e) { note($('result'), 'err', esc(e.message)); }
-  finally { busy(false); }
+    const r = await call('POST', '/api/publish', { slug: cur.slug });
+    cur.status = 'published';
+    await loadList();
+    showEditor('published');
+    markClean('公開しました');
+    note('ok', `公開しました。1〜2分でブログに反映されます：<a href="${esc(r.url)}" target="_blank">${esc(r.url)}</a>`);
+  } catch (e) { note('err', esc(e.message)); }
+  finally { busy(''); }
 };
 
-// ファイル選択・ドロップ（画面のどこにドロップしても良い）
-$('drop').onclick = () => $('picker').click();
-$('drop').onkeydown = (e) => { if (e.key === 'Enter' || e.key === ' ') $('picker').click(); };
-$('picker').onchange = (e) => { handleFile(e.target.files[0]); e.target.value = ''; };
-let depth = 0;
-addEventListener('dragenter', (e) => { e.preventDefault(); depth++; document.body.classList.add('dragging'); });
-addEventListener('dragleave', () => { if (--depth <= 0) { depth = 0; document.body.classList.remove('dragging'); } });
-addEventListener('dragover', (e) => e.preventDefault());
-addEventListener('drop', (e) => { e.preventDefault(); depth = 0; document.body.classList.remove('dragging'); handleFile(e.dataTransfer.files[0]); });
+$('unpublish').onclick = async () => {
+  closeMenus();
+  if (!(await confirmBox('一時非公開にする', `「${$('title').value}」をブログから外します。記事はこの PC に残り、いつでも再公開できます。`, '非公開にする'))) return;
+  if (dirty && !(await save())) return;
+  busy('非公開にしています…（GitHub に送信中）');
+  try {
+    await call('POST', '/api/unpublish', { slug: cur.slug });
+    cur.status = 'hidden';
+    await loadList();
+    showEditor('hidden');
+    markClean('非公開にしました');
+    note('ok', '非公開にしました。1〜2分でブログから消えます。「再公開する」でいつでも戻せます。');
+  } catch (e) { note('err', esc(e.message)); }
+  finally { busy(''); }
+};
 
-loadMeta();
+$('delete').onclick = async () => {
+  closeMenus();
+  const pub = cur.status === 'published';
+  if (!(await confirmBox('記事を削除', `「${$('title').value}」を削除します。${pub ? '\nブログからも消えます。' : ''}\n（記事はブログのフォルダ内の「trash」に移るので、必要なら後から取り出せます）`, '削除する', 'primary'))) return;
+  busy(pub ? '削除しています…（GitHub に送信中）' : '削除しています…');
+  try {
+    await call('POST', '/api/delete', { slug: cur.slug });
+    dirty = false; cur = null;
+    if (editor) { await editor.destroy(); editor = null; }
+    $('editorview').hidden = true; $('welcome').hidden = false;
+    await loadList();
+  } catch (e) { note('err', esc(e.message)); }
+  finally { busy(''); }
+};
+
+$('open-live').onclick = () => { closeMenus(); open(`${meta.site}/posts/${cur.slug}/`, '_blank'); };
+
+// ---------- Word 取り込み ----------
+let wordTarget = 'new';
+async function importWord(file) {
+  if (!file) return;
+  busy('Word ファイルを変換しています…');
+  let r;
+  try { r = await call('POST', '/api/convert', file, { 'X-Filename': encodeURIComponent(file.name) }); }
+  catch (e) { busy(''); if (cur) note('err', esc(e.message)); else await dialog('取り込めませんでした', e.message, [{ label: '閉じる', value: 1, kind: 'primary' }]); return; }
+  busy('');
+  if (wordTarget === 'replace' && cur) {
+    if (!(await confirmBox('本文を置き換える', `今の本文を「${file.name}」の内容で置き換えます。保存するまでは元に戻せます（保存せずに別の記事を開く）。`, '置き換える'))) return;
+    await mountEditor(r.markdown);
+    if (r.title && !$('title').value) $('title').value = r.title;
+    cur.source = r.filename;
+    markDirty();
+    note(r.warnings.length ? 'warn' : 'ok', r.warnings.length ? r.warnings.map(esc).join('<br>') : 'Word の内容で本文を置き換えました。確認して「保存」を押してください。');
+  } else {
+    await newPost({ title: r.title, description: r.description, markdown: r.markdown, source: r.filename, warnings: r.warnings });
+  }
+}
+$('picker').onchange = (e) => { importWord(e.target.files[0]); e.target.value = ''; };
+$('new-word').onclick = () => { closeMenus(); wordTarget = 'new'; $('picker').click(); };
+$('import-word').onclick = () => { closeMenus(); wordTarget = 'replace'; $('picker').click(); };
+$('new-blank').onclick = () => { closeMenus(); newPost(); };
+
+let depth = 0;
+const isFile = (e) => [...(e.dataTransfer?.types ?? [])].includes('Files');
+addEventListener('dragenter', (e) => { if (!isFile(e)) return; e.preventDefault(); depth++; $('veil').hidden = false; });
+addEventListener('dragleave', (e) => { if (!isFile(e)) return; if (--depth <= 0) { depth = 0; $('veil').hidden = true; } });
+addEventListener('dragover', (e) => { if (isFile(e)) e.preventDefault(); });
+addEventListener('drop', (e) => {
+  if (!isFile(e)) return;
+  const f = e.dataTransfer.files[0];
+  depth = 0; $('veil').hidden = true;
+  if (!/\.docx$/i.test(f?.name ?? '')) return; // 画像などはエディタ側に任せる
+  e.preventDefault(); e.stopPropagation();
+  wordTarget = 'new'; importWord(f);
+}, true);
+
+// ---------- メニュー ----------
+function closeMenus() { $('newmenu').hidden = true; $('moremenu').hidden = true; }
+$('newbtn').onclick = (e) => { e.stopPropagation(); const h = $('newmenu').hidden; closeMenus(); $('newmenu').hidden = !h; };
+$('morebtn').onclick = (e) => { e.stopPropagation(); const h = $('moremenu').hidden; closeMenus(); $('moremenu').hidden = !h; };
+addEventListener('click', (e) => { if (!e.target.closest('.menu')) closeMenus(); });
+
+// ---------- 起動 ----------
+(async () => {
+  meta = await call('GET', '/api/meta');
+  $('sitelink').href = meta.site;
+  await loadList();
+})();
 </script>
 </body>
 </html>

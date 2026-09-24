@@ -139,6 +139,9 @@ export async function convertDocx(docxPath, mediaDir) {
     return b;
   });
 
+  // 図（画像＋キャプション）：管理画面のエディタと同じく、キャプションを画像のタイトルに入れた1段落にする
+  blocks = unwrapFigures(blocks);
+
   // 表
   walkBlocks(blocks, (b) => { if (b.t === 'Table') fixTable(b); });
 
@@ -177,6 +180,23 @@ export async function convertDocx(docxPath, mediaDir) {
 
   const hasMath = /\$/.test(markdown);
   return { title, description, markdown, images: [...new Set(images)], warnings, hasMath };
+}
+
+function unwrapFigures(blocks) {
+  return blocks.flatMap((b) => {
+    if (b.t === 'BlockQuote') return [{ ...b, c: unwrapFigures(b.c) }];
+    if (b.t === 'Div') return [{ ...b, c: [b.c[0], unwrapFigures(b.c[1])] }];
+    if (b.t !== 'Figure') return [b];
+    const caption = b.c[1][1].map(blockText).join(' ').trim();
+    const inner = unwrapFigures(b.c[2]);
+    walkInlines(inner, (n) => {
+      if (n.t === 'Image') {
+        if (caption) n.c[2][1] = caption;
+        n.c[1] = caption ? [{ t: 'Str', c: caption }] : n.c[1];
+      }
+    });
+    return inner;
+  });
 }
 
 function summarize(t) {
