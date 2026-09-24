@@ -55,6 +55,15 @@ main.wrap { padding-top: 2rem; padding-bottom: 4rem; min-height: 60vh; }
 .site-footer a { color: var(--muted); }
 
 /* トップ */
+.hero { background: #0f1b2d; }
+.hero img {
+  display: block; width: 100%; max-width: 1920px; margin: 0 auto;
+  height: auto; aspect-ratio: 1920 / 600; object-fit: cover;
+}
+@media (max-width: 600px) {
+  /* スマホでは細くなりすぎないよう高さを確保し、中央を切り出す */
+  .hero img { aspect-ratio: auto; height: 170px; }
+}
 .lead { font-family: var(--serif); color: var(--muted); margin: 0 0 1.5rem; }
 .filters { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.5rem; }
 .filters button {

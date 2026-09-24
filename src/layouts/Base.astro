@@ -30,7 +30,8 @@ const path = Astro.url.pathname;
     <meta property="og:url" content={canonical} />
     <meta property="og:site_name" content={SITE_TITLE} />
     <meta property="og:locale" content="ja_JP" />
-    <meta name="twitter:card" content="summary" />
+    <meta property="og:image" content={new URL('/images/og.jpg', Astro.site)} />
+    <meta name="twitter:card" content="summary_large_image" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -49,6 +50,7 @@ const path = Astro.url.pathname;
         </nav>
       </div>
     </header>
+    <slot name="hero" />
     <main class="wrap">
       <slot />
     </main>
