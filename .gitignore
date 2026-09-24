@@ -2,3 +2,10 @@ node_modules/
 dist/
 .astro/
 .DS_Store
+
+# 管理画面：下書き・一時非公開の記事とその画像、ゴミ箱は Git に載せない
+src/content/private/
+public/images/*/
+trash/
+# 管理画面のエディタ（npm run build:editor で生成）
+tools/writer/dist/

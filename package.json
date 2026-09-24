@@ -8,7 +8,8 @@
     "build": "astro build",
     "preview": "astro preview",
     "new": "node scripts/new-post.mjs",
-    "write": "node tools/writer/server.mjs"
+    "build:editor": "esbuild tools/writer/editor-src.js --bundle --minify --format=iife --outdir=tools/writer/dist --entry-names=editor --asset-names=[name]-[hash] --loader:.woff=file --loader:.woff2=file --loader:.ttf=file --loader:.svg=dataurl --log-level=warning",
+    "admin": "node tools/writer/server.mjs"
   },
   "dependencies": {
     "@astrojs/markdown-remark": "^7.3.1",
@@ -18,5 +19,9 @@
     "katex": "^0.18.9",
     "rehype-katex": "^7.0.1",
     "remark-math": "^6.0.0"
+  },
+  "devDependencies": {
+    "@milkdown/crepe": "^7.22.2",
+    "esbuild": "^0.28.2"
   }
 }
