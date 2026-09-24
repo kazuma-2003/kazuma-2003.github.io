@@ -2,7 +2,7 @@
 import Base from '../layouts/Base.astro';
 import PostList from '../components/PostList.astro';
 import { getPosts } from '../lib';
-import { CATEGORIES, SITE_DESCRIPTION } from '../consts';
+import { CATEGORIES } from '../consts';
 const posts = await getPosts();
 ---
 <Base>
@@ -17,7 +17,6 @@ const posts = await getPosts();
       fetchpriority="high"
     />
   </div>
-  <p class="lead">{SITE_DESCRIPTION}</p>
   <div class="filters">
     <button type="button" data-filter="" aria-pressed="true">すべて</button>
     {CATEGORIES.map((c) => <button type="button" data-filter={c} aria-pressed="false">{c}</button>)}

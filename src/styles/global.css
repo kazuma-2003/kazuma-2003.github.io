@@ -64,7 +64,6 @@ main.wrap { padding-top: 2rem; padding-bottom: 4rem; min-height: 60vh; }
   /* スマホでは細くなりすぎないよう高さを確保し、中央を切り出す */
   .hero img { aspect-ratio: auto; height: 170px; }
 }
-.lead { font-family: var(--serif); color: var(--muted); margin: 0 0 1.5rem; }
 .filters { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.5rem; }
 .filters button {
   font: inherit; font-size: 0.85rem; padding: 0.25rem 0.9rem; border-radius: 999px;
