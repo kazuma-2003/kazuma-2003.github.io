@@ -49,6 +49,15 @@ a { color: var(--accent); }
 .site-header nav { display: flex; gap: 1.1rem; font-size: 0.9rem; }
 .site-header nav a { color: var(--muted); text-decoration: none; }
 .site-header nav a[aria-current='page'], .site-header nav a:hover { color: var(--fg); }
+.site-header nav { align-items: center; }
+.admin-gear { display: inline-flex; align-items: center; padding: 2px; border-radius: 4px; }
+.admin-gear[hidden] { display: none; }
+.admin-gear:hover { color: var(--accent) !important; }
+.admin-hint {
+  position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); z-index: 100;
+  max-width: calc(100% - 32px); padding: 10px 16px; border-radius: 8px;
+  background: var(--fg); color: var(--bg); font-size: 0.85rem; box-shadow: 0 6px 24px rgba(0, 0, 0, 0.2);
+}
 main.wrap { padding-top: 2rem; padding-bottom: 4rem; min-height: 60vh; }
 .site-footer { border-top: 1px solid var(--line); font-size: 0.85rem; color: var(--muted); }
 .site-footer .wrap { display: flex; justify-content: space-between; padding-top: 1.25rem; padding-bottom: 2rem; }

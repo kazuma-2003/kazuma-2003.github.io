@@ -426,6 +426,19 @@ async function blogRunning() {
   try { return (await fetch(BLOG)).ok; } catch { return false; }
 }
 
+const openBrowser = () => { if (!process.argv.includes('--no-open')) execFile('cmd', ['/c', 'start', '', `http://localhost:${PORT}`]); };
+
+// すでに起動していれば（ブログの歯車を2回押したときなど）、その画面を開くだけにする
+try {
+  if ((await fetch(`http://localhost:${PORT}/api/meta`)).ok) {
+    console.log('  管理画面はすでに起動しています。ブラウザで開きます。');
+    openBrowser();
+    rmSync(STAGING, { recursive: true, force: true });
+    await sleep(1500);
+    process.exit(0);
+  }
+} catch { /* まだ起動していない */ }
+
 if (!existsSync(join(HERE, 'dist', 'editor.js'))) {
   console.log('  エディタを準備しています…');
   await promisify(execFile)('npm', ['run', 'build:editor'], { cwd: ROOT, shell: true });
@@ -448,5 +461,5 @@ server.listen(PORT, '127.0.0.1', async () => {
   console.log(`  ブログの管理画面を開きました： http://localhost:${PORT}`);
   console.log('  使い終わったら、この黒い画面を閉じてください。');
   console.log('');
-  if (!process.argv.includes('--no-open')) execFile('cmd', ['/c', 'start', '', `http://localhost:${PORT}`]);
+  openBrowser();
 });
