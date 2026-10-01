@@ -73,12 +73,19 @@ main.wrap { padding-top: 2rem; padding-bottom: 4rem; min-height: 60vh; }
   /* スマホでは細くなりすぎないよう高さを確保し、中央を切り出す */
   .hero img { aspect-ratio: auto; height: 170px; }
 }
-.filters { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.5rem; }
-.filters button {
-  font: inherit; font-size: 0.85rem; padding: 0.25rem 0.9rem; border-radius: 999px;
-  border: 1px solid var(--line); background: transparent; color: var(--muted); cursor: pointer;
+/* 分類：四角い枠の中に横一列で並べる */
+.filters {
+  display: flex; margin-bottom: 2rem;
+  border: 1px solid var(--line); border-radius: 6px; overflow: hidden; background: var(--bg);
 }
-.filters button[aria-pressed='true'] { background: var(--accent); border-color: var(--accent); color: var(--bg); }
+.filters button {
+  flex: 1; font: inherit; font-size: 0.9rem; padding: 0.6rem 0.5rem;
+  border: 0; border-left: 1px solid var(--line); background: transparent; color: var(--muted); cursor: pointer;
+  transition: background-color 0.15s, color 0.15s;
+}
+.filters button:first-child { border-left: 0; }
+.filters button:hover { background: var(--accent-soft); color: var(--fg); }
+.filters button[aria-pressed='true'] { background: var(--accent); color: var(--bg); font-weight: 600; }
 
 .post-list { list-style: none; margin: 0; padding: 0; }
 .post-list li { padding: 1.4rem 0; border-top: 1px solid var(--line); }
