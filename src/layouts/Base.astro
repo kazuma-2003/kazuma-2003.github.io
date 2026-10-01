@@ -50,6 +50,9 @@ const path = Astro.url.pathname;
           <a href="/" aria-current={path === '/' ? 'page' : undefined}>記事</a>
           <a href="/tags/" aria-current={path.startsWith('/tags') ? 'page' : undefined}>タグ</a>
           <a href="/about/" aria-current={path.startsWith('/about') ? 'page' : undefined}>このブログについて</a>
+          <a class="admin-gear" id="admin-gear" href="sekaikeizai-admin:open" title="管理画面を開く" aria-label="管理画面を開く" hidden>
+            <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M19.14 12.94a7.07 7.07 0 0 0 .06-.94 7.07 7.07 0 0 0-.06-.94l2.03-1.58a.5.5 0 0 0 .12-.64l-1.92-3.32a.5.5 0 0 0-.6-.22l-2.39.96a7.03 7.03 0 0 0-1.63-.94l-.36-2.54a.5.5 0 0 0-.5-.42h-3.84a.5.5 0 0 0-.5.42l-.36 2.54c-.59.24-1.13.56-1.63.94l-2.39-.96a.5.5 0 0 0-.6.22L2.65 8.84a.5.5 0 0 0 .12.64l2.03 1.58a7.07 7.07 0 0 0 0 1.88l-2.03 1.58a.5.5 0 0 0-.12.64l1.92 3.32c.13.22.39.3.6.22l2.39-.96c.5.38 1.04.7 1.63.94l.36 2.54c.04.24.25.42.5.42h3.84c.25 0 .46-.18.5-.42l.36-2.54c.59-.24 1.13-.56 1.63-.94l2.39.96c.22.08.47 0 .6-.22l1.92-3.32a.5.5 0 0 0-.12-.64l-2.03-1.58zM12 15.6A3.6 3.6 0 1 1 12 8.4a3.6 3.6 0 0 1 0 7.2z"/></svg>
+          </a>
         </nav>
       </div>
     </header>
@@ -63,5 +66,39 @@ const path = Astro.url.pathname;
         <a href="/rss.xml">RSS</a>
       </div>
     </footer>
+    <div class="admin-hint" id="admin-hint" role="status" hidden>
+      管理画面が開かない場合は、ブログのフォルダの「ブログを書く.bat」をダブルクリックしてください。
+    </div>
+    <script is:inline>
+      // 管理者用の歯車：このブラウザで一度 ?admin=on を開いたときだけ表示する（?admin=off で消える）。
+      // 押すと Windows に登録した sekaikeizai-admin: リンク経由で「ブログを書く.bat」が起動する。
+      (function () {
+        var KEY = 'sekaikeizai-admin';
+        var q = new URLSearchParams(location.search).get('admin');
+        try {
+          if (q === 'on') localStorage.setItem(KEY, '1');
+          if (q === 'off') localStorage.removeItem(KEY);
+          if (localStorage.getItem(KEY) !== '1') return;
+        } catch (e) { return; }
+        if (q) {
+          var u = new URL(location.href);
+          u.searchParams.delete('admin');
+          history.replaceState(null, '', u);
+        }
+        var gear = document.getElementById('admin-gear');
+        var hint = document.getElementById('admin-hint');
+        gear.hidden = false;
+        gear.addEventListener('click', function () {
+          // 起動の確認ダイアログが出るとページはフォーカスを失う。出なければ案内を出す。
+          var left = false;
+          var onBlur = function () { left = true; };
+          window.addEventListener('blur', onBlur, { once: true });
+          setTimeout(function () {
+            window.removeEventListener('blur', onBlur);
+            if (!left) { hint.hidden = false; setTimeout(function () { hint.hidden = true; }, 8000); }
+          }, 1500);
+        });
+      })();
+    </script>
   </body>
 </html>
