@@ -23,5 +23,8 @@
   "devDependencies": {
     "@milkdown/crepe": "^7.22.2",
     "esbuild": "^0.28.2"
+  },
+  "overrides": {
+    "katex": "$katex"
   }
 }
