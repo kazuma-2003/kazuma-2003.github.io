@@ -1,5 +1,6 @@
 ---
 import Base from '../../layouts/Base.astro';
+import ShareButtons from '../../components/ShareButtons.astro';
 import { render } from 'astro:content';
 import { getPosts, formatDate, isoDate, readingMinutes, type Post } from '../../lib';
 
@@ -35,6 +36,7 @@ const d = post.data;
     <div class="prose">
       <Content />
     </div>
+    <ShareButtons title={d.title} url={new URL(`/posts/${post.id}/`, Astro.site).href} />
   </article>
   <nav class="pager">
     {older ? <a class="older" href={`/posts/${older.id}/`}><small>前の記事</small>{older.data.title}</a> : <span />}
