@@ -161,6 +161,30 @@ main.wrap { padding-top: 2rem; padding-bottom: 4rem; min-height: 60vh; }
 .prose sup a { text-decoration: none; padding: 0 0.1em; }
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
 
+/* 共有ボタン */
+.share { margin-top: 3.5rem; padding: 1.25rem 1.25rem 1.1rem; border: 1px solid var(--line); border-radius: 8px; }
+.share-title { font-size: 0.9rem; font-weight: 600; color: var(--muted); margin: 0 0 0.8rem; }
+.share-buttons { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.share-btn {
+  display: inline-flex; align-items: center; justify-content: center; min-width: 5.5rem;
+  padding: 0.45rem 0.9rem; border-radius: 6px; border: 1px solid transparent;
+  font: inherit; font-size: 0.85rem; font-weight: 600; line-height: 1.4;
+  color: #fff; text-decoration: none; cursor: pointer; transition: filter 0.15s;
+}
+.share-btn:hover { filter: brightness(1.12); }
+.share-btn[hidden] { display: none; }
+.share-btn.x, .share-btn.threads { background: #111; }
+.share-btn.fb { background: #1877f2; }
+.share-btn.line { background: #06c755; }
+.share-btn.hatena { background: #00a4de; }
+.share-btn.native, .share-btn.copy { background: transparent; color: var(--fg); border-color: var(--line); }
+.share-btn.native:hover, .share-btn.copy:hover { background: var(--accent-soft); filter: none; }
+@media (prefers-color-scheme: dark) {
+  .share-btn.x, .share-btn.threads { background: #000; border-color: #444; }
+}
+.share-note { margin: 0.7rem 0 0; font-size: 0.82rem; color: var(--accent); }
+.share-note[hidden] { display: none; }
+
 /* 前後の記事 */
 .pager { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 4rem; padding-top: 1.5rem; border-top: 1px solid var(--line); }
 .pager a { text-decoration: none; color: var(--fg); font-family: var(--serif); line-height: 1.5; }

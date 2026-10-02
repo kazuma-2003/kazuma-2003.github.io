@@ -1,0 +1,59 @@
+---
+// 記事の共有ボタン。各 SNS の投稿画面を開くだけのリンクで、外部のスクリプトは読み込まない
+// （訪問者の情報が SNS に送られず、ページも重くならない）。
+// Instagram はウェブからリンクを投稿する仕組みが無いので、端末の共有メニューとリンクのコピーで代える。
+import { SITE_TITLE } from '../consts';
+
+interface Props { title: string; url: string }
+const { title, url } = Astro.props;
+const text = `${title} | ${SITE_TITLE}`;
+const e = encodeURIComponent;
+
+const links = [
+  { name: 'X', label: 'X でポスト', cls: 'x', href: `https://x.com/intent/tweet?text=${e(text)}&url=${e(url)}` },
+  { name: 'Facebook', label: 'Facebook でシェア', cls: 'fb', href: `https://www.facebook.com/sharer/sharer.php?u=${e(url)}` },
+  { name: 'LINE', label: 'LINE で送る', cls: 'line', href: `https://social-plugins.line.me/lineit/share?url=${e(url)}` },
+  { name: 'はてブ', label: 'はてなブックマークに追加', cls: 'hatena', href: `https://b.hatena.ne.jp/add?mode=confirm&url=${e(url)}&title=${e(text)}` },
+  { name: 'Threads', label: 'Threads に投稿', cls: 'threads', href: `https://www.threads.net/intent/post?text=${e(`${text} ${url}`)}` },
+];
+---
+<section class="share" aria-label="この記事を共有する" data-title={text} data-url={url}>
+  <h2 class="share-title">この記事を共有する</h2>
+  <div class="share-buttons">
+    {links.map((l) => (
+      <a class={`share-btn ${l.cls}`} href={l.href} target="_blank" rel="noopener noreferrer" aria-label={l.label} title={l.label}>{l.name}</a>
+    ))}
+    <button type="button" class="share-btn native" data-share hidden>共有…</button>
+    <button type="button" class="share-btn copy" data-copy>リンクをコピー</button>
+  </div>
+  <p class="share-note" data-note hidden></p>
+</section>
+
+<script>
+  document.querySelectorAll<HTMLElement>('.share').forEach((box) => {
+    const title = box.dataset.title ?? document.title;
+    const url = box.dataset.url ?? location.href;
+    const note = box.querySelector<HTMLElement>('[data-note]')!;
+    const say = (msg: string) => {
+      note.textContent = msg;
+      note.hidden = false;
+      setTimeout(() => { note.hidden = true; }, 3000);
+    };
+
+    // スマホなど、端末の共有メニュー（Instagram などのアプリにも送れる）がある環境だけ表示
+    const native = box.querySelector<HTMLButtonElement>('[data-share]')!;
+    if (navigator.share) {
+      native.hidden = false;
+      native.addEventListener('click', () => { navigator.share({ title, url }).catch(() => {}); });
+    }
+
+    box.querySelector<HTMLButtonElement>('[data-copy]')!.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(url);
+        say('リンクをコピーしました。Instagram のプロフィールや投稿の説明などに貼り付けて使えます。');
+      } catch {
+        window.prompt('このリンクをコピーしてください', url);
+      }
+    });
+  });
+</script>
