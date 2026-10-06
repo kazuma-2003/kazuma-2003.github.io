@@ -5,6 +5,9 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+  # 毎週月曜 6:00（日本時間）に作り直し、流れる帯の GDP を世界銀行の最新値に更新する
+  schedule:
+    - cron: '0 21 * * 0'
 
 permissions:
   contents: read

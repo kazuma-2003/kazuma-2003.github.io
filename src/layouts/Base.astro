@@ -1,7 +1,8 @@
 ---
 import 'katex/dist/katex.min.css';
 import '../styles/global.css';
-import { SITE_TITLE, SITE_ROMAJI, SITE_DESCRIPTION, AUTHOR, FOUNDED, TICKER, CATEGORIES } from '../consts';
+import { SITE_TITLE, SITE_ROMAJI, SITE_DESCRIPTION, AUTHOR, FOUNDED } from '../consts';
+import { getGdp, formatUsd } from '../gdp';
 import { getPosts, dotDate, plainText } from '../lib';
 
 interface Props {
@@ -17,7 +18,8 @@ const path = Astro.url.pathname;
 
 const posts = await getPosts();
 const latest = posts[0];
-const ticker = [`VOL.01 ── ${SITE_TITLE}`, `分類：${CATEGORIES.join(' ／ ')}`, `発行：${AUTHOR}`, ...TICKER];
+const gdp = await getGdp();
+const gdpYears = [...new Set(gdp.rows.map((r) => r.year))].join('・');
 const nav = [
   { href: '/', label: '記事', on: path === '/' || path.startsWith('/posts') },
   { href: '/#cats', label: '分類', on: false },
@@ -78,9 +80,21 @@ const nav = [
       </div>
     )}
 
-    <div class="ticker" aria-hidden="true">
+    <div class="ticker" title={`名目GDP（米ドル）と実質成長率。出典：${gdp.source}`}>
       <div class="track">
-        {[...ticker, ...ticker].map((t) => <span>{t}</span>)}
+        {[0, 1].map((copy) => (
+          <div class="set" aria-hidden={copy === 1 ? 'true' : undefined}>
+            <span class="t-label">名目GDP {gdpYears}年 ── 世界銀行</span>
+            {gdp.rows.map((r) => (
+              <span class="t-item">
+                <b>{r.name}</b> {formatUsd(r.gdp)}
+                {r.growth !== null && (
+                  <em class={r.growth >= 0 ? 'up' : 'down'}>{r.growth >= 0 ? '▲' : '▼'}{Math.abs(r.growth).toFixed(1)}%</em>
+                )}
+              </span>
+            ))}
+          </div>
+        ))}
       </div>
     </div>
 
