@@ -62,11 +62,19 @@ img { max-width: 100%; }
   padding: 5px 12px; border-radius: 3px; white-space: nowrap;
 }
 
-/* ── 流れる帯（ティッカー） ─────────────────── */
+/* ── 流れる帯（ティッカー）：各国の GDP ───────── */
 .ticker { border-bottom: 1.5px solid var(--ink); background: var(--paper-2); overflow: hidden; white-space: nowrap; }
-.ticker .track { display: inline-flex; animation: ticker 45s linear infinite; padding: 7px 0; }
-.ticker span { font-family: var(--mono); font-size: 12px; font-weight: 600; letter-spacing: 0.08em; padding-right: 2.5em; color: var(--ink-2); }
-.ticker span::before { content: '✦'; color: var(--saffron); margin-right: 1.2em; }
+.ticker .track { display: inline-flex; animation: ticker 70s linear infinite; padding: 7px 0; }
+.ticker:hover .track { animation-play-state: paused; }
+.ticker .set { display: inline-flex; }
+.ticker span { font-family: var(--mono); font-size: 12px; font-weight: 600; letter-spacing: 0.04em; padding-right: 2.2em; color: var(--ink-2); }
+.ticker .t-item::before { content: '✦'; color: var(--saffron); margin-right: 1.1em; }
+.ticker .t-item b { font-family: var(--sans); font-weight: 700; color: var(--ink); margin-right: 0.35em; }
+.ticker .t-item em { font-style: normal; margin-left: 0.5em; }
+.ticker .t-item em.up { color: #2f7a3e; }
+.ticker .t-item em.down { color: var(--rust); }
+@media (prefers-color-scheme: dark) { .ticker .t-item em.up { color: #7fc98d; } }
+.ticker .t-label { background: var(--ink); color: var(--paper); padding: 1px 10px; margin-right: 2.2em; border-radius: 3px; letter-spacing: 0.08em; }
 @keyframes ticker { to { transform: translateX(-50%); } }
 @media (prefers-reduced-motion: reduce) { .ticker .track { animation: none; } }
 
