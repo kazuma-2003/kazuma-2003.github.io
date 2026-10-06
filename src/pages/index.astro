@@ -1,6 +1,7 @@
 ---
 import Base from '../layouts/Base.astro';
 import PostCard from '../components/PostCard.astro';
+import Subscribe from '../components/Subscribe.astro';
 import { getPosts, issueNumbers, dotDate, pad2 } from '../lib';
 import { AUTHOR, CATEGORIES, CATEGORY_INFO, FOUNDED, HEADLINE, HEADLINE_SUB } from '../consts';
 
@@ -106,10 +107,7 @@ const lines = HEADLINE.split('/').map((line) =>
   </div>
 
   <section class="block subscribe" id="subscribe">
-    <div class="wrap">
-      <div><h2>新しい論考を、見逃さない。</h2><p>RSS リーダーに登録すると、公開と同時に届きます。</p></div>
-      <a class="btn" href="/rss.xml">RSS で購読する</a>
-    </div>
+    <div class="wrap"><Subscribe /></div>
   </section>
 </Base>
 

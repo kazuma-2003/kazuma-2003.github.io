@@ -1,6 +1,7 @@
 ---
 import Base from '../../layouts/Base.astro';
 import ShareButtons from '../../components/ShareButtons.astro';
+import Subscribe from '../../components/Subscribe.astro';
 import { render } from 'astro:content';
 import { getPosts, issueNumbers, dotDate, isoDate, pad2, readingMinutes, type Post } from '../../lib';
 import { CATEGORY_INFO, type Category } from '../../consts';
@@ -42,6 +43,7 @@ const cls = CATEGORY_INFO[d.category as Category]?.cls ?? 'misc';
       <Content />
     </div>
     <ShareButtons title={d.title} url={new URL(`/posts/${post.id}/`, Astro.site).href} />
+    <Subscribe compact />
   </article>
 
   <nav class="pager">

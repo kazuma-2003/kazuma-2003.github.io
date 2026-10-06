@@ -1,7 +1,7 @@
 ---
 import 'katex/dist/katex.min.css';
 import '../styles/global.css';
-import { SITE_TITLE, SITE_ROMAJI, SITE_DESCRIPTION, AUTHOR, FOUNDED } from '../consts';
+import { SITE_TITLE, SITE_ROMAJI, SITE_DESCRIPTION, AUTHOR, FOUNDED, NEWSLETTER } from '../consts';
 import { getGdp, formatUsd } from '../gdp';
 import { getPosts, dotDate, plainText } from '../lib';
 
@@ -110,7 +110,9 @@ const nav = [
             <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M19.14 12.94a7.07 7.07 0 0 0 .06-.94 7.07 7.07 0 0 0-.06-.94l2.03-1.58a.5.5 0 0 0 .12-.64l-1.92-3.32a.5.5 0 0 0-.6-.22l-2.39.96a7.03 7.03 0 0 0-1.63-.94l-.36-2.54a.5.5 0 0 0-.5-.42h-3.84a.5.5 0 0 0-.5.42l-.36 2.54c-.59.24-1.13.56-1.63.94l-2.39-.96a.5.5 0 0 0-.6.22L2.65 8.84a.5.5 0 0 0 .12.64l2.03 1.58a7.07 7.07 0 0 0 0 1.88l-2.03 1.58a.5.5 0 0 0-.12.64l1.92 3.32c.13.22.39.3.6.22l2.39-.96c.5.38 1.04.7 1.63.94l.36 2.54c.04.24.25.42.5.42h3.84c.25 0 .46-.18.5-.42l.36-2.54c.59-.24 1.13-.56 1.63-.94l2.39.96c.22.08.47 0 .6-.22l1.92-3.32a.5.5 0 0 0-.12-.64l-2.03-1.58zM12 15.6A3.6 3.6 0 1 1 12 8.4a3.6 3.6 0 0 1 0 7.2z"/></svg>
           </a>
         </nav>
-        <a class="btn small rss" href="/rss.xml">RSS<span class="long">で購読</span></a>
+        {NEWSLETTER.action
+          ? <a class="btn small rss" href="/#subscribe">メール<span class="long">で購読</span></a>
+          : <a class="btn small rss" href="/rss.xml">RSS<span class="long">で購読</span></a>}
       </div>
     </header>
 
