@@ -9,6 +9,12 @@ export const FOUNDED = 2026;
 export const HEADLINE = '経済の/[秘密を]/解き明かす。';
 export const HEADLINE_SUB = '産業連関表から金利と投資まで。一つの式に押し込めず、隣り合う概念を一つずつつないで、経済の因果をたどる論考集。';
 
+// メールで購読（follow.it）。follow.it の「購読フォーム」のコードにある送信先 URL（form の action）と
+// メールアドレス欄の name を入れると、サイトに登録欄が現れる。空のあいだは登録欄を出さない。
+export const NEWSLETTER = {
+  action: '',
+  emailField: 'email',
+};
 
 // 記事の分類。frontmatter の category はこのどれか。
 export const CATEGORIES = ['経済分析', '思想', '雑記'] as const;

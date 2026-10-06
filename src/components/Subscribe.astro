@@ -1,0 +1,36 @@
+---
+// 「メールで購読する」の登録欄。登録と配信は follow.it が行う（新しい記事が RSS に載ると自動でメールが届く）。
+// NEWSLETTER.action が空のあいだは、RSS の案内だけを出す。
+import { NEWSLETTER } from '../consts';
+
+interface Props { compact?: boolean }
+const { compact = false } = Astro.props;
+const ready = NEWSLETTER.action !== '';
+---
+<div class:list={['subscribe-box', { compact }]} id={compact ? undefined : 'subscribe-form'}>
+  {ready ? (
+    <div class="sb-text">
+      <div class="label">NEWSLETTER ── メールで購読</div>
+      <h2>新しい論考を、メールで受け取る。</h2>
+      <p>記事を公開すると、登録したメールアドレスに自動でお知らせが届きます。無料・いつでも配信を停止できます。</p>
+    </div>
+  ) : (
+    <div class="sb-text">
+      <div class="label">SUBSCRIBE ── RSS</div>
+      <h2>新しい論考を、見逃さない。</h2>
+      <p>RSS リーダーに登録すると、公開と同時に届きます。</p>
+    </div>
+  )}
+  {ready ? (
+    <form class="sb-form" action={NEWSLETTER.action} method="post" target="_blank">
+      <label class="sr-only" for={compact ? 'sb-email-c' : 'sb-email'}>メールアドレス</label>
+      <input id={compact ? 'sb-email-c' : 'sb-email'} type="email" name={NEWSLETTER.emailField} required autocomplete="email" placeholder="メールアドレス" />
+      <button class="btn" type="submit">メールで購読する</button>
+      <p class="sb-note">メールアドレスは新着記事のお知らせにだけ使います。配信は follow.it を通じて行います。</p>
+    </form>
+  ) : (
+    <div class="sb-form">
+      <a class="btn" href="/rss.xml">RSS で購読する</a>
+    </div>
+  )}
+</div>

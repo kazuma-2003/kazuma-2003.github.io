@@ -241,11 +241,24 @@ section.block { padding: 80px 0; border-bottom: 1.5px solid var(--ink); }
 .stat .v { font-family: var(--condensed); font-size: 64px; line-height: 1; color: #e8772e; }
 .stat .k { font-family: var(--mono); font-size: 12px; letter-spacing: 0.14em; opacity: 0.75; margin-top: 8px; }
 
-/* ── 購読 ─────────────────────────────── */
+/* ── 購読（メール・RSS） ─────────────────── */
 .subscribe { background: var(--paper-2); }
-.subscribe .wrap { display: flex; align-items: center; justify-content: space-between; gap: 30px; flex-wrap: wrap; }
-.subscribe h2 { font-family: var(--display); font-weight: 400; font-size: clamp(26px, 3.4vw, 40px); margin: 0 0 6px; }
-.subscribe p { font-family: var(--serif); margin: 0; color: var(--ink-2); }
+.subscribe-box { display: grid; grid-template-columns: 1.1fr 1fr; gap: 40px; align-items: center; }
+.subscribe-box h2 { font-family: var(--display); font-weight: 400; font-size: clamp(26px, 3.4vw, 40px); line-height: 1.3; margin: 0 0 8px; }
+.subscribe-box .sb-text p { font-family: var(--serif); margin: 0; color: var(--ink-2); }
+.sb-form { display: flex; flex-wrap: wrap; gap: 12px; align-items: stretch; }
+.sb-form input[type='email'] {
+  flex: 1 1 220px; min-width: 0; font: inherit; font-size: 15px; padding: 11px 14px; color: var(--ink);
+  background: var(--paper); border: 2px solid var(--ink); border-radius: 4px; box-shadow: inset 2px 2px 0 var(--paper-3);
+}
+.sb-form input[type='email']:focus { outline: 3px solid var(--saffron); outline-offset: 1px; }
+.sb-note { flex-basis: 100%; margin: 4px 0 0; font-size: 12.5px; line-height: 1.7; color: var(--muted); }
+.subscribe-box.compact {
+  margin-top: 28px; grid-template-columns: 1fr; gap: 16px; padding: 22px 24px 24px;
+  border: 2px solid var(--ink); background: var(--paper-2); box-shadow: 6px 6px 0 var(--saffron);
+}
+.subscribe-box.compact h2 { font-size: 22px; }
+.subscribe-box.compact .sb-text p { font-size: 14px; }
 
 /* ── タグ一覧 ─────────────────────────── */
 .tag-cloud { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 12px; }
@@ -357,6 +370,7 @@ section.block { padding: 80px 0; border-bottom: 1.5px solid var(--ink); }
   .hero .wrap { grid-template-columns: 1fr; gap: 44px; padding-top: 44px; padding-bottom: 60px; }
   .poster { max-width: 420px; margin: 0 auto; width: calc(100% - 14px); }
   .grid3 { grid-template-columns: 1fr; }
+  .subscribe-box { grid-template-columns: 1fr; gap: 20px; }
   .cats { grid-template-columns: 1fr; }
   .cat-tile { border-left: 0; border-top: 2px solid var(--ink); min-height: 200px; }
   .cat-tile:first-child { border-top: 0; }
