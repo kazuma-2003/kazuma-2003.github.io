@@ -3,8 +3,10 @@ import Base from '../layouts/Base.astro';
 import { AUTHOR } from '../consts';
 ---
 <Base title="このブログについて">
-  <article class="post">
-    <h1>このブログについて</h1>
+  <section class="page-hero">
+    <div class="wrap"><div class="label">ABOUT ── {AUTHOR}</div><h1>このブログについて</h1></div>
+  </section>
+  <article class="article">
     <div class="prose">
       <p>{AUTHOR} が、経済の分析と、思想的な文章を書く場所です。</p>
       <p>（ここに自己紹介、関心のある分野、連絡先などを書く）</p>

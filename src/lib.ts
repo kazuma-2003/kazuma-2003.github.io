@@ -1,4 +1,5 @@
 import { getCollection, type CollectionEntry } from 'astro:content';
+export { plainText } from './plain-text.mjs';
 
 export type Post = CollectionEntry<'posts'>;
 
@@ -8,8 +9,20 @@ export async function getPosts(): Promise<Post[]> {
   return all.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
 }
 
+// 記事の号数（古い順に 1, 2, 3…）。getPosts() の並び（新しい順）を受け取る。
+export function issueNumbers(posts: Post[]): Map<string, number> {
+  return new Map(posts.map((p, i) => [p.id, posts.length - i]));
+}
+
+export const pad2 = (n: number) => String(n).padStart(2, '0');
+
 export function formatDate(d: Date): string {
   return `${d.getFullYear()}年${d.getMonth() + 1}月${d.getDate()}日`;
+}
+
+// 号外のスタンプ用：2026.10.02
+export function dotDate(d: Date): string {
+  return `${d.getFullYear()}.${pad2(d.getMonth() + 1)}.${pad2(d.getDate())}`;
 }
 
 export function isoDate(d: Date): string {

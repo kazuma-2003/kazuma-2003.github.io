@@ -2,44 +2,50 @@
 import Base from '../../layouts/Base.astro';
 import ShareButtons from '../../components/ShareButtons.astro';
 import { render } from 'astro:content';
-import { getPosts, formatDate, isoDate, readingMinutes, type Post } from '../../lib';
+import { getPosts, issueNumbers, dotDate, isoDate, pad2, readingMinutes, type Post } from '../../lib';
+import { CATEGORY_INFO, type Category } from '../../consts';
 
 export async function getStaticPaths() {
   const posts = await getPosts();
+  const no = issueNumbers(posts);
   return posts.map((post, i) => ({
     params: { slug: post.id },
-    props: { post, newer: posts[i - 1], older: posts[i + 1] },
+    props: { post, no: no.get(post.id), newer: posts[i - 1], older: posts[i + 1] },
   }));
 }
-interface Props { post: Post; newer?: Post; older?: Post }
-const { post, newer, older } = Astro.props;
+interface Props { post: Post; no?: number; newer?: Post; older?: Post }
+const { post, no, newer, older } = Astro.props;
 const { Content } = await render(post);
 const d = post.data;
+const cls = CATEGORY_INFO[d.category as Category]?.cls ?? 'misc';
 ---
 <Base title={d.title} description={d.description} type="article">
-  <article class="post">
-    <header>
+  <section class="art-hero">
+    <div class="wrap">
+      <div class="bignum" aria-hidden="true">{pad2(no ?? 1)}</div>
       <div class="meta">
-        <a class="cat" href={`/?c=${encodeURIComponent(d.category)}`}>{d.category}</a>
-        <time datetime={isoDate(d.date)}>{formatDate(d.date)}</time>
-        {d.updated && <span>（{formatDate(d.updated)} 更新）</span>}
-        <span>約{readingMinutes(post.body)}分</span>
-        {d.draft && <span class="draft">下書き</span>}
+        <a class={`chip ${cls}`} href={`/?c=${encodeURIComponent(d.category)}#all`}>{d.category}</a>
+        <time class="stamp date" datetime={isoDate(d.date)}>{dotDate(d.date)}</time>
+        {d.updated && <span>{dotDate(d.updated)} 更新</span>}
+        <span>約{readingMinutes(post.body)}分で読めます</span>
+        {d.draft && <span class="draft">{d.hidden ? '非公開' : '下書き'}</span>}
       </div>
       <h1>{d.title}</h1>
       {d.tags.length > 0 && (
-        <ul class="tags">
-          {d.tags.map((t) => <li><a href={`/tags/${encodeURIComponent(t)}/`}>#{t}</a></li>)}
-        </ul>
+        <div class="tags">{d.tags.map((t) => <a href={`/tags/${encodeURIComponent(t)}/`}>#{t}</a>)}</div>
       )}
-    </header>
+    </div>
+  </section>
+
+  <article class="article">
     <div class="prose">
       <Content />
     </div>
     <ShareButtons title={d.title} url={new URL(`/posts/${post.id}/`, Astro.site).href} />
   </article>
+
   <nav class="pager">
-    {older ? <a class="older" href={`/posts/${older.id}/`}><small>前の記事</small>{older.data.title}</a> : <span />}
-    {newer ? <a class="newer" href={`/posts/${newer.id}/`}><small>次の記事</small>{newer.data.title}</a> : <span />}
+    {older ? <a href={`/posts/${older.id}/`}><small>← 前の論考</small><span>{older.data.title}</span></a> : <a href="/"><small>← 記事一覧</small><span>トップへ戻る</span></a>}
+    {newer ? <a class="next" href={`/posts/${newer.id}/`}><small>次の論考 →</small><span>{newer.data.title}</span></a> : <span />}
   </nav>
 </Base>

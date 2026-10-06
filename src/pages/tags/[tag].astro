@@ -1,20 +1,28 @@
 ---
 import Base from '../../layouts/Base.astro';
-import PostList from '../../components/PostList.astro';
-import { getPosts, type Post } from '../../lib';
+import PostCard from '../../components/PostCard.astro';
+import { getPosts, issueNumbers, type Post } from '../../lib';
 
 export async function getStaticPaths() {
   const posts = await getPosts();
+  const no = Object.fromEntries(issueNumbers(posts));
   const tags = [...new Set(posts.flatMap((p) => p.data.tags))];
   return tags.map((tag) => ({
     params: { tag },
-    props: { tag, posts: posts.filter((p) => p.data.tags.includes(tag)) },
+    props: { tag, posts: posts.filter((p) => p.data.tags.includes(tag)), no },
   }));
 }
-interface Props { tag: string; posts: Post[] }
-const { tag, posts } = Astro.props;
+interface Props { tag: string; posts: Post[]; no: Record<string, number> }
+const { tag, posts, no } = Astro.props;
 ---
 <Base title={`#${tag}`}>
-  <h1 class="page-title">#{tag}</h1>
-  <PostList posts={posts} />
+  <section class="page-hero">
+    <div class="wrap"><div class="label">TAG ── {posts.length} 本の論考</div><h1>#{tag}</h1></div>
+  </section>
+  <section class="block">
+    <div class="wrap">
+      <div class="grid3">{posts.map((p) => <PostCard post={p} no={no[p.id]} />)}</div>
+      <p style="margin-top:32px"><a class="btn ghost small" href="/tags/">← タグ一覧へ</a></p>
+    </div>
+  </section>
 </Base>

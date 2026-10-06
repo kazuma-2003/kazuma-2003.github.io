@@ -1,0 +1,39 @@
+---
+// 記事カード。feature は号数の帯付きの大きなカード（トップの最新記事など）。
+import { CATEGORY_INFO, type Category } from '../consts';
+import { dotDate, isoDate, pad2, plainText, readingMinutes, type Post } from '../lib';
+
+interface Props { post: Post; no?: number; feature?: boolean }
+const { post, no, feature = false } = Astro.props;
+const d = post.data;
+const cls = CATEGORY_INFO[d.category as Category]?.cls ?? 'misc';
+const href = `/posts/${post.id}/`;
+---
+{feature ? (
+  <a class="feature" href={href} data-cat={d.category}>
+    <div class="no"><small>NO.</small>{pad2(no ?? 1)}</div>
+    <div class="body">
+      <div class="meta">
+        <span class={`chip ${cls}`}>{d.category}</span>
+        <time datetime={isoDate(d.date)}>{dotDate(d.date)}</time>
+        <span>約{readingMinutes(post.body)}分</span>
+        {d.tags.map((t) => <span>#{t}</span>)}
+        {d.draft && <span class="draft">{d.hidden ? '非公開' : '下書き'}</span>}
+      </div>
+      <h3>{d.title}</h3>
+      <p>{plainText(d.description)}</p>
+      <span class="more">続きを読む →</span>
+    </div>
+  </a>
+) : (
+  <a class="card" href={href} data-cat={d.category}>
+    <div class="meta">
+      <span class={`chip ${cls}`}>{d.category}</span>
+      <time datetime={isoDate(d.date)}>{dotDate(d.date)}</time>
+      {no && <span>NO.{pad2(no)}</span>}
+      {d.draft && <span class="draft">{d.hidden ? '非公開' : '下書き'}</span>}
+    </div>
+    <h4>{d.title}</h4>
+    <p>{plainText(d.description)}</p>
+  </a>
+)}
