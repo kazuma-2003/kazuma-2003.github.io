@@ -18,6 +18,7 @@ import { join, dirname, extname, basename } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { randomUUID } from 'node:crypto';
 import { convertDocx, MEDIA } from './convert.mjs';
+import { plainText } from '../../src/plain-text.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(HERE, '..', '..');
@@ -381,7 +382,9 @@ const api = {
 
 function firstSentence(body) {
   const para = body.split(/\n\s*\n/).map((s) => s.trim()).find((s) => s && !/^(#|!\[|\$\$|>|\||-|\*|\d+\.)/.test(s)) ?? '';
-  const t = para.replace(/\[\^[^\]]+\]/g, '').replace(/[*_`]/g, '').replace(/\[([^\]]*)\]\([^)]*\)/g, '$1');
+  // 脚注記号・リンク・強調を外し、数式は読める文字に（説明文では数式が組まれないため）
+  const t = plainText(para.replace(/\[\^[^\]]+\]/g, '').replace(/\[([^\]]*)\]\([^)]*\)/g, '$1'))
+    .replace(/[*`]/g, '').replace(/^[\s　]+/, '');
   if (t.length <= 120) return t;
   const cut = t.slice(0, 120), end = cut.lastIndexOf('。');
   return end > 40 ? cut.slice(0, end + 1) : `${cut}…`;

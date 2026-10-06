@@ -7,8 +7,16 @@ for (const p of posts) for (const t of p.data.tags) counts.set(t, (counts.get(t)
 const tags = [...counts].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], 'ja'));
 ---
 <Base title="タグ">
-  <h1 class="page-title">タグ</h1>
-  <ul class="tag-cloud">
-    {tags.map(([t, n]) => <li><a href={`/tags/${encodeURIComponent(t)}/`}>#{t} <span class="muted">{n}</span></a></li>)}
-  </ul>
+  <section class="page-hero">
+    <div class="wrap"><div class="label">INDEX ── TAGS</div><h1>タグ</h1></div>
+  </section>
+  <section class="block">
+    <div class="wrap">
+      {tags.length === 0 ? <p class="empty">まだタグがありません。</p> : (
+        <ul class="tag-cloud">
+          {tags.map(([t, n]) => <li><a href={`/tags/${encodeURIComponent(t)}/`}>#{t}<span class="n">{n}</span></a></li>)}
+        </ul>
+      )}
+    </div>
+  </section>
 </Base>

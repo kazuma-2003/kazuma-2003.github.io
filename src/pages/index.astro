@@ -1,36 +1,128 @@
 ---
 import Base from '../layouts/Base.astro';
-import PostList from '../components/PostList.astro';
-import { getPosts } from '../lib';
-import { CATEGORIES } from '../consts';
+import PostCard from '../components/PostCard.astro';
+import { getPosts, issueNumbers, dotDate, pad2 } from '../lib';
+import { AUTHOR, CATEGORIES, CATEGORY_INFO, FOUNDED, HEADLINE, HEADLINE_SUB } from '../consts';
+
 const posts = await getPosts();
+const no = issueNumbers(posts);
+const latest = posts[0];
+const counts = Object.fromEntries(CATEGORIES.map((c) => [c, posts.filter((p) => p.data.category === c).length]));
+const updated = posts.reduce<Date | null>((m, p) => {
+  const d = p.data.updated ?? p.data.date;
+  return !m || d > m ? d : m;
+}, null);
+
+// 大見出し：/ で改行、[ ] でサフランの帯
+const lines = HEADLINE.split('/').map((line) =>
+  line.split(/(\[[^\]]+\])/).filter(Boolean).map((part) =>
+    part.startsWith('[') ? { hl: true, text: part.slice(1, -1) } : { hl: false, text: part }));
 ---
 <Base>
-  <div class="hero" slot="hero">
-    <img
-      src="/images/banner.webp"
-      srcset="/images/banner-960.webp 960w, /images/banner.webp 1920w"
-      sizes="100vw"
-      width="1920"
-      height="600"
-      alt="日本の産業：漁業、農業、発電、造船、製造、建築、土木、宇宙開発、事務、金融の写真を斜めの帯状に並べたバナー"
-      fetchpriority="high"
-    />
+  <section class="hero" slot="hero">
+    <div class="wrap">
+      <div>
+        <div class="kicker"><span class="stamp">創刊号</span><span class="mono">VOL.01 ／ {FOUNDED} ／ {AUTHOR}</span></div>
+        <h1>
+          {lines.map((parts, i) => (
+            <>
+              {parts.map((p) => p.hl ? <span class="hl">{p.text}</span> : p.text)}
+              {i < lines.length - 1 && <br />}
+            </>
+          ))}
+        </h1>
+        <p class="sub">{HEADLINE_SUB}</p>
+        <div class="actions">
+          {latest && <a class="btn" href={`/posts/${latest.id}/`}>最新の論考を読む →</a>}
+          <a class="btn ghost" href="#cats">分類から探す</a>
+        </div>
+      </div>
+      <div class="poster">
+        <div class="frame">
+          <img
+            src="/images/banner.webp"
+            srcset="/images/banner-960.webp 960w, /images/banner.webp 1920w"
+            sizes="(max-width: 900px) 90vw, 560px"
+            width="1920" height="600"
+            alt="日本の産業：漁業、農業、発電、造船、製造、建築、土木、宇宙開発、事務、金融の写真を斜めの帯状に並べたバナー"
+            fetchpriority="high"
+          />
+        </div>
+        <div class="caption"><small>FIELD NOTES</small>World economy,<br />read through statistics.</div>
+        <div class="badge"><div><small>ISSUE</small>NO.{pad2(posts.length || 1)}</div></div>
+      </div>
+    </div>
+  </section>
+
+  {latest && (
+    <section class="block" id="latest">
+      <div class="wrap">
+        <div class="sec-head"><div><div class="label">§01 ── LATEST</div><h2>最新の論考</h2></div></div>
+        <PostCard post={latest} no={no.get(latest.id)} feature />
+      </div>
+    </section>
+  )}
+
+  <section class="block" id="all">
+    <div class="wrap">
+      <div class="sec-head"><div><div class="label">§02 ── ARCHIVE</div><h2>すべての論考</h2></div></div>
+      <div class="filters" role="group" aria-label="分類で絞り込む">
+        <button type="button" data-filter="" aria-pressed="true">すべて</button>
+        {CATEGORIES.map((c) => <button type="button" data-filter={c} aria-pressed="false">{c}</button>)}
+      </div>
+      {posts.length === 0 ? (
+        <p class="empty">まだ記事がありません。</p>
+      ) : (
+        <div class="grid3" id="post-grid">
+          {posts.map((p) => <PostCard post={p} no={no.get(p.id)} />)}
+        </div>
+      )}
+      <p class="empty" id="filter-empty" hidden>この分類の論考はまだありません。</p>
+    </div>
+  </section>
+
+  <section class="block" id="cats">
+    <div class="wrap">
+      <div class="sec-head"><div><div class="label">§03 ── FILED UNDER</div><h2>分類から読む</h2></div></div>
+      <div class="cats">
+        {CATEGORIES.map((c, i) => (
+          <a class={`cat-tile ${CATEGORY_INFO[c].cls}`} href={`/?c=${encodeURIComponent(c)}#all`} data-cat-link={c}>
+            <span class="n">{pad2(i + 1)}</span>
+            <div><div class="t">{c}</div><p>{CATEGORY_INFO[c].text}</p></div>
+            <span class="count">{counts[c]} 本の論考</span>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <div class="stats">
+    <div class="wrap">
+      <div class="stat"><div class="v">{pad2(posts.length)}</div><div class="k">公開中の論考</div></div>
+      <div class="stat"><div class="v">{pad2(CATEGORIES.length)}</div><div class="k">分類</div></div>
+      <div class="stat"><div class="v">{FOUNDED}</div><div class="k">創刊</div></div>
+      <div class="stat"><div class="v">{updated ? dotDate(updated).slice(5) : '--'}</div><div class="k">最終更新</div></div>
+    </div>
   </div>
-  <div class="filters">
-    <button type="button" data-filter="" aria-pressed="true">すべて</button>
-    {CATEGORIES.map((c) => <button type="button" data-filter={c} aria-pressed="false">{c}</button>)}
-  </div>
-  <PostList posts={posts} />
+
+  <section class="block subscribe" id="subscribe">
+    <div class="wrap">
+      <div><h2>新しい論考を、見逃さない。</h2><p>RSS リーダーに登録すると、公開と同時に届きます。</p></div>
+      <a class="btn" href="/rss.xml">RSS で購読する</a>
+    </div>
+  </section>
 </Base>
 
 <script>
   // 分類での絞り込み（静的サイトのままブラウザ側で行う）。/?c=経済分析 でも開ける。
   const buttons = [...document.querySelectorAll<HTMLButtonElement>('.filters button')];
-  const items = document.querySelectorAll<HTMLLIElement>('.post-list li');
+  const cards = [...document.querySelectorAll<HTMLElement>('#post-grid > [data-cat]')];
+  const empty = document.getElementById('filter-empty');
   function apply(cat: string) {
     buttons.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.filter === cat)));
-    items.forEach((li) => { li.hidden = cat !== '' && li.dataset.cat !== cat; });
+    let shown = 0;
+    cards.forEach((c) => { c.hidden = cat !== '' && c.dataset.cat !== cat; if (!c.hidden) shown++; });
+    if (empty) empty.hidden = shown > 0 || cards.length === 0;
   }
   function select(cat: string) {
     apply(cat);
@@ -39,7 +131,10 @@ const posts = await getPosts();
     history.replaceState(null, '', url);
   }
   buttons.forEach((b) => b.addEventListener('click', () => select(b.dataset.filter ?? '')));
-  document.querySelectorAll<HTMLAnchorElement>('.post-list .cat').forEach((a) =>
-    a.addEventListener('click', (e) => { e.preventDefault(); select(a.dataset.cat ?? ''); }));
+  document.querySelectorAll<HTMLAnchorElement>('[data-cat-link]').forEach((a) => a.addEventListener('click', (e) => {
+    e.preventDefault();
+    select(a.dataset.catLink ?? '');
+    document.getElementById('all')?.scrollIntoView({ behavior: 'smooth' });
+  }));
   apply(new URLSearchParams(location.search).get('c') ?? '');
 </script>
