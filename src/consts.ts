@@ -5,6 +5,13 @@ export const SITE_DESCRIPTION = '経済の分析と、思想についての文�
 export const AUTHOR = 'M.K.';
 export const FOUNDED = 2026;
 
+// トップの動画。YouTube の URL か '/videos/名前.mp4' を入れると、イラストの場所が動画に置き換わる。
+// 空のあいだはイラストの上に「動画の設置場所」の灰色の枠を出す。
+export const HERO_VIDEO = {
+  src: '',
+  title: '世界経済論考 紹介動画',
+};
+
 // メールで購読（follow.it）。follow.it の「購読フォーム」のコードにある送信先 URL（form の action）と
 // メールアドレス欄の name を入れると、サイトに登録欄が現れる。空のあいだは登録欄を出さない。
 export const NEWSLETTER = {

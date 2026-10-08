@@ -2,7 +2,7 @@
 import Base from '../layouts/Base.astro';
 import PostCard from '../components/PostCard.astro';
 import Subscribe from '../components/Subscribe.astro';
-import HeroArt from '../components/HeroArt.astro';
+import HeroMedia from '../components/HeroMedia.astro';
 import { getPosts, issueNumbers, dotDate, pad2 } from '../lib';
 import { AUTHOR, CATEGORIES, CATEGORY_INFO, FOUNDED, SITE_TITLE } from '../consts';
 
@@ -22,7 +22,7 @@ const updated = posts.reduce<Date | null>((m, p) => {
       <div>
         <div class="kicker"><span class="stamp">創刊号</span><span class="mono">VOL.01 ／ {FOUNDED} ／ {AUTHOR}</span></div>
         <h1 class="sr-only">{SITE_TITLE}</h1>
-        <HeroArt />
+        <HeroMedia />
         <div class="actions">
           {latest && <a class="btn" href={`/posts/${latest.id}/`}>最新の論考を読む →</a>}
           <a class="btn ghost" href="#cats">分類から探す</a>
