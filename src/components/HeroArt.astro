@@ -1,0 +1,91 @@
+---
+// トップの大見出しの代わりのイラスト：飛行機・ロケット・ロボットアーム（産業と技術）。
+// ポスター調：墨の太い輪郭、サフラン・からし色・紺の面、右下にずらした影。
+---
+<svg class="hero-art" viewBox="0 0 640 440" role="img" aria-labelledby="hero-art-title">
+  <title id="hero-art-title">飛行機、ロケット、ロボットアームのイラスト</title>
+  <defs>
+    <!-- 版画風のずらした影 -->
+    <filter id="ha-shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feFlood flood-color="#1c130b" result="ink" />
+      <feComposite in="ink" in2="SourceAlpha" operator="in" result="shape" />
+      <feOffset in="shape" dx="6" dy="6" result="drop" />
+      <feMerge><feMergeNode in="drop" /><feMergeNode in="SourceGraphic" /></feMerge>
+    </filter>
+    <pattern id="ha-hatch" width="10" height="10" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+      <line x1="0" y1="0" x2="0" y2="10" stroke="#1c130b" stroke-width="2" opacity="0.35" />
+    </pattern>
+  </defs>
+
+  <g stroke="#1c130b" stroke-width="4" stroke-linejoin="round" stroke-linecap="round">
+    <!-- 太陽と軌跡 -->
+    <circle cx="420" cy="200" r="150" fill="#e8772e" stroke="none" opacity="0.9" />
+    <circle cx="420" cy="200" r="150" fill="url(#ha-hatch)" stroke="none" opacity="0.5" />
+    <path d="M40 210 Q180 120 330 150" fill="none" stroke-dasharray="2 12" stroke-width="5" opacity="0.55" />
+    <path d="M430 420 Q455 330 500 250" fill="none" stroke-dasharray="2 12" stroke-width="5" opacity="0.55" />
+    <g fill="#c79a2b" stroke-width="3">
+      <path d="M560 70 l6 14 14 6 -14 6 -6 14 -6 -14 -14 -6 14 -6z" />
+      <path d="M90 60 l4 10 10 4 -10 4 -4 10 -4 -10 -10 -4 10 -4z" />
+      <path d="M300 40 l4 9 9 4 -9 4 -4 9 -4 -9 -9 -4 9 -4z" />
+    </g>
+
+    <!-- 飛行機 -->
+    <g filter="url(#ha-shadow)" transform="translate(205 120) rotate(-14)">
+      <path d="M-105 -18 L-128 -70 L-100 -70 L-62 -18 Z" fill="#e8772e" />
+      <path d="M-110 0 Q-112 -20 -82 -20 L72 -20 Q112 -20 130 0 Q112 18 72 18 L-82 18 Q-112 18 -110 0 Z" fill="#f3ead6" />
+      <path d="M96 -16 Q118 -12 126 -2 L96 -2 Z" fill="#1f3a5f" stroke-width="3" />
+      <g fill="#1f3a5f" stroke-width="2.5">
+        <circle cx="-56" cy="-4" r="5" /><circle cx="-36" cy="-4" r="5" /><circle cx="-16" cy="-4" r="5" />
+        <circle cx="4" cy="-4" r="5" /><circle cx="24" cy="-4" r="5" /><circle cx="44" cy="-4" r="5" /><circle cx="64" cy="-4" r="5" />
+      </g>
+      <path d="M-8 6 L42 6 L-14 78 L-46 78 Z" fill="#1f3a5f" />
+      <rect x="-4" y="30" width="38" height="18" rx="9" fill="#c79a2b" stroke-width="3.5" />
+      <path d="M-100 8 L-120 26 L-96 26 L-80 12" fill="#1f3a5f" stroke-width="3.5" />
+    </g>
+
+    <!-- ロケット -->
+    <g filter="url(#ha-shadow)" transform="translate(505 215) rotate(24)">
+      <path d="M-15 52 Q0 150 15 52 Q0 82 -15 52 Z" fill="#c79a2b" />
+      <path d="M-8 52 Q0 112 8 52 Z" fill="#e8772e" stroke-width="3" />
+      <path d="M-33 8 L-64 62 L-33 50 Z" fill="#b4471a" />
+      <path d="M33 8 L64 62 L33 50 Z" fill="#b4471a" />
+      <path d="M0 -128 C32 -88 36 -34 34 44 L-34 44 C-36 -34 -32 -88 0 -128 Z" fill="#f3ead6" />
+      <path d="M0 -128 C13 -112 21 -96 26 -78 L-26 -78 C-21 -96 -13 -112 0 -128 Z" fill="#b4471a" />
+      <rect x="-35" y="4" width="70" height="14" fill="#e8772e" stroke-width="3.5" />
+      <circle cx="0" cy="-38" r="15" fill="#1f3a5f" />
+      <circle cx="-4" cy="-42" r="4" fill="#f3ead6" stroke="none" />
+      <rect x="-20" y="44" width="40" height="12" rx="3" fill="#1c130b" />
+    </g>
+
+    <!-- 地面 -->
+    <line x1="10" y1="412" x2="630" y2="412" stroke-width="5" />
+    <rect x="10" y="414" width="620" height="18" fill="url(#ha-hatch)" stroke="none" />
+
+    <!-- ロボットアーム -->
+    <g filter="url(#ha-shadow)">
+      <path d="M48 412 L56 382 L164 382 L172 412 Z" fill="#1c130b" />
+      <rect x="88" y="356" width="44" height="28" rx="6" fill="#c79a2b" />
+      <!-- 下腕：墨の太線の上に色の線を重ねて輪郭付きの部材にする -->
+      <line x1="110" y1="356" x2="196" y2="246" stroke-width="40" />
+      <line x1="110" y1="356" x2="196" y2="246" stroke="#e8772e" stroke-width="30" />
+      <line x1="196" y1="246" x2="300" y2="282" stroke-width="32" />
+      <line x1="196" y1="246" x2="300" y2="282" stroke="#f3ead6" stroke-width="22" />
+      <line x1="148" y1="308" x2="168" y2="282" stroke-width="3" />
+      <line x1="236" y1="256" x2="262" y2="265" stroke-width="3" />
+      <circle cx="110" cy="356" r="20" fill="#1f3a5f" />
+      <circle cx="110" cy="356" r="7" fill="#f3ead6" stroke-width="3" />
+      <circle cx="196" cy="246" r="20" fill="#1f3a5f" />
+      <circle cx="196" cy="246" r="7" fill="#f3ead6" stroke-width="3" />
+      <circle cx="300" cy="282" r="14" fill="#c79a2b" />
+      <!-- つかみ（グリッパー） -->
+      <path d="M306 292 L318 324 L306 330" fill="none" stroke-width="8" />
+      <path d="M290 296 L286 330 L298 334" fill="none" stroke-width="8" />
+      <!-- 持ち上げている歯車 -->
+      <g transform="translate(302 360)">
+        <circle r="20" fill="none" stroke-width="10" stroke-dasharray="7 5.6" />
+        <circle r="16" fill="#c79a2b" stroke-width="3.5" />
+        <circle r="6" fill="#f3ead6" stroke-width="3" />
+      </g>
+    </g>
+  </g>
+</svg>
