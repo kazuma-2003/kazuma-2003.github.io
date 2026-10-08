@@ -7,7 +7,7 @@ export const FOUNDED = 2026;
 
 // トップページの大見出し。[ ] で囲んだ部分にサフランの帯が付く。/ で改行。
 export const HEADLINE = '経済の/[秘密を]/解き明かす。';
-export const HEADLINE_SUB = '産業連関表から金利と投資まで。一つの式に押し込めず、隣り合う概念を一つずつつないで、経済の因果をたどる論考集。';
+export const HEADLINE_SUB = ''; // 大見出しの下の紹介文（空なら出さない）
 
 // メールで購読（follow.it）。follow.it の「購読フォーム」のコードにある送信先 URL（form の action）と
 // メールアドレス欄の name を入れると、サイトに登録欄が現れる。空のあいだは登録欄を出さない。

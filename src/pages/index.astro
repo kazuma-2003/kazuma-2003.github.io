@@ -32,7 +32,7 @@ const lines = HEADLINE.split('/').map((line) =>
             </>
           ))}
         </h1>
-        <p class="sub">{HEADLINE_SUB}</p>
+        {HEADLINE_SUB && <p class="sub">{HEADLINE_SUB}</p>}
         <div class="actions">
           {latest && <a class="btn" href={`/posts/${latest.id}/`}>最新の論考を読む →</a>}
           <a class="btn ghost" href="#cats">分類から探す</a>
