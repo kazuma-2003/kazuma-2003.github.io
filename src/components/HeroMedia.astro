@@ -1,0 +1,36 @@
+---
+// トップのイラストの場所。将来はここに動画（イントロ・解説など）を置く。
+// consts.ts の HERO_VIDEO に URL を入れると動画に置き換わる。
+//   YouTube：動画ページの URL（https://www.youtube.com/watch?v=… または https://youtu.be/…）
+//   動画ファイル：public/videos/ に置いて '/videos/名前.mp4'
+// 空のあいだはイラストの上に「動画の設置場所」を示す灰色の枠（16:9）を重ねる。
+import HeroArt from './HeroArt.astro';
+import { HERO_VIDEO } from '../consts';
+
+const url = HERO_VIDEO.src.trim();
+const yt = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]{11})/);
+const embed = yt ? `https://www.youtube-nocookie.com/embed/${yt[1]}?rel=0` : '';
+---
+<div class="hero-media">
+  {url === '' ? (
+    <>
+      <HeroArt />
+      <div class="video-slot" role="img" aria-label="動画の設置場所（準備中）">
+        <svg class="play" viewBox="0 0 64 64" aria-hidden="true">
+          <circle cx="32" cy="32" r="30" fill="none" stroke="currentColor" stroke-width="3" />
+          <path d="M26 20 L46 32 L26 44 Z" fill="currentColor" />
+        </svg>
+        <span class="vs-label">VIDEO ── 16:9</span>
+        <span class="vs-text">動画を設置予定</span>
+      </div>
+    </>
+  ) : embed ? (
+    <div class="video-frame">
+      <iframe src={embed} title={HERO_VIDEO.title} loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+    </div>
+  ) : (
+    <div class="video-frame">
+      <video src={url} title={HERO_VIDEO.title} controls preload="metadata" playsinline></video>
+    </div>
+  )}
+</div>

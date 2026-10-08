@@ -126,7 +126,20 @@ img { max-width: 100%; }
 .kicker .stamp { color: var(--rust); }
 .kicker .mono { font-size: 12px; color: var(--muted); }
 .hero .actions { display: flex; gap: 16px; flex-wrap: wrap; }
-.hero-art { display: block; width: 100%; height: auto; max-width: 600px; margin: 0 0 28px -6px; }
+.hero-media { position: relative; max-width: 600px; margin: 0 0 28px; }
+.hero-art { display: block; width: 100%; height: auto; }
+/* 動画の設置場所（16:9 の灰色の枠をイラストに重ねる） */
+.video-slot {
+  position: absolute; left: 0; right: 0; top: 50%; transform: translateY(-50%); aspect-ratio: 16 / 9;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;
+  background: rgba(110, 106, 100, 0.82); color: #f3ead6; border: 2px dashed #1c130b; border-radius: 4px;
+  box-shadow: 6px 6px 0 rgba(28, 19, 11, 0.85); backdrop-filter: grayscale(1);
+}
+.video-slot .play { width: 64px; height: 64px; opacity: 0.95; }
+.video-slot .vs-label { font-family: var(--mono); font-size: 12px; font-weight: 600; letter-spacing: 0.16em; opacity: 0.85; }
+.video-slot .vs-text { font-family: var(--display); font-size: 20px; letter-spacing: 0.04em; }
+.video-frame { aspect-ratio: 16 / 9; border: 2px solid var(--ink); background: #000; box-shadow: 8px 8px 0 var(--saffron); }
+.video-frame iframe, .video-frame video { display: block; width: 100%; height: 100%; border: 0; }
 
 .poster { position: relative; }
 .poster .frame {
