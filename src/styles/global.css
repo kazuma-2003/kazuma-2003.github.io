@@ -125,16 +125,8 @@ img { max-width: 100%; }
 .kicker { display: inline-flex; gap: 10px; align-items: center; margin-bottom: 22px; flex-wrap: wrap; }
 .kicker .stamp { color: var(--rust); }
 .kicker .mono { font-size: 12px; color: var(--muted); }
-.hero h1 { font-family: var(--display); font-weight: 400; font-size: clamp(40px, 6.4vw, 88px); line-height: 1.16; margin: 0 0 26px; letter-spacing: 0.01em; }
-.hl { position: relative; display: inline-block; color: #f3ead6; z-index: 0; }
-.hl::before {
-  /* 刷毛で塗ったようなサフランの帯 */
-  content: ''; position: absolute; z-index: -1; inset: 8% -6% 4% -4%; background: var(--saffron);
-  transform: skew(-8deg) rotate(-1.5deg); border-radius: 3px 10px 4px 12px; box-shadow: 6px 6px 0 var(--ink);
-}
-@media (prefers-color-scheme: dark) { .hl { color: #17110b; } }
-.hero p.sub { font-family: var(--serif); font-size: 18px; color: var(--ink-2); max-width: 34em; margin: 0 0 32px; }
 .hero .actions { display: flex; gap: 16px; flex-wrap: wrap; }
+.hero-art { display: block; width: 100%; height: auto; max-width: 600px; margin: 0 0 28px -6px; }
 
 .poster { position: relative; }
 .poster .frame {
