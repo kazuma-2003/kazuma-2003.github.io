@@ -16,9 +16,9 @@ export const NEWSLETTER = {
 export const CATEGORIES = ['経済分析', '思想', '雑記'] as const;
 export type Category = (typeof CATEGORIES)[number];
 
-// 分類ごとの色（CSS のクラス名）と説明
-export const CATEGORY_INFO: Record<Category, { cls: string; text: string }> = {
-  経済分析: { cls: 'econ', text: '産業連関表・国民経済計算などの一次統計から、経済の構造と動きを読む。' },
-  思想: { cls: 'thought', text: '経済の見方そのもの ── 因果、分類、測ることの意味を考える。' },
-  雑記: { cls: 'misc', text: 'ことわざから統計の話まで、肩の力を抜いた覚え書き。' },
+// 分類ごとの色（CSS のクラス名）
+export const CATEGORY_INFO: Record<Category, { cls: string }> = {
+  経済分析: { cls: 'econ' },
+  思想: { cls: 'thought' },
+  雑記: { cls: 'misc' },
 };
