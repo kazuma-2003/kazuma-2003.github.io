@@ -12,7 +12,7 @@ export const HEADLINE_SUB = '産業連関表から金利と投資まで。一つ
 // メールで購読（follow.it）。follow.it の「購読フォーム」のコードにある送信先 URL（form の action）と
 // メールアドレス欄の name を入れると、サイトに登録欄が現れる。空のあいだは登録欄を出さない。
 export const NEWSLETTER = {
-  action: '',
+  action: 'https://api.follow.it/subscription-form/Rit4Z29DTzhqZGFkQ2NTUnJ1cjhieGVUWnhhMElGVFdVZ1VCK2ZpdVpJMExPZ1hzMmdwWnhWN01lUmFoKzk4cXBjK1dhOEJIWDBMQUNkVTVjTlQrNE4yMEl6ay9aWEd6TW1FSXpOR0dJaEl3MFo2TGxWZ2FBajMrZEJ3Rk5MQzd8ZzFMdnBwb0VhUnQzUCt0NlFLRXRVa2lzaU1NZ2dPMWwwWTR6ZEErY2RGcz0=/8',
   emailField: 'email',
 };
 
