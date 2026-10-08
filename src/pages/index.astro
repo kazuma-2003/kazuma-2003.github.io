@@ -79,7 +79,7 @@ const updated = posts.reduce<Date | null>((m, p) => {
         {CATEGORIES.map((c, i) => (
           <a class={`cat-tile ${CATEGORY_INFO[c].cls}`} href={`/?c=${encodeURIComponent(c)}#all`} data-cat-link={c}>
             <span class="n">{pad2(i + 1)}</span>
-            <div><div class="t">{c}</div><p>{CATEGORY_INFO[c].text}</p></div>
+            <div class="t">{c}</div>
             <span class="count">{counts[c]} 本の論考</span>
           </a>
         ))}
