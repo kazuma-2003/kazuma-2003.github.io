@@ -178,6 +178,7 @@ section.block { padding: 80px 0; border-bottom: 1.5px solid var(--ink); }
 .chip.econ { background: #e8772e; color: #1c130b; border-color: #1c130b; }
 .chip.thought { background: #1f3a5f; color: #f3ead6; border-color: #1f3a5f; }
 .chip.misc { background: #c79a2b; color: #1c130b; border-color: #1c130b; }
+.chip.stats { background: #17695f; color: #f3ead6; border-color: #17695f; }
 .draft { font-family: var(--mono); font-size: 11px; font-weight: 600; padding: 1px 8px; border: 1.5px dashed var(--rust); color: var(--rust); border-radius: 3px; }
 .meta { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; font-family: var(--mono); font-size: 12px; color: var(--muted); }
 
@@ -221,7 +222,7 @@ section.block { padding: 80px 0; border-bottom: 1.5px solid var(--ink); }
 .filters button[aria-pressed='true'] { background: var(--saffron); color: #1c130b; }
 
 /* ── 分類（ポスター3枚） ─────────────────── */
-.cats { display: grid; grid-template-columns: repeat(3, 1fr); border: 2px solid var(--ink); }
+.cats { display: grid; grid-template-columns: repeat(4, 1fr); border: 2px solid var(--ink); }
 .cat-tile {
   position: relative; padding: 34px 30px 30px; min-height: 210px; text-decoration: none; display: flex; flex-direction: column; justify-content: space-between;
   border-left: 2px solid var(--ink); overflow: hidden; transition: filter 0.15s;
@@ -231,6 +232,7 @@ section.block { padding: 80px 0; border-bottom: 1.5px solid var(--ink); }
 .cat-tile.econ { background: #e8772e; color: #1c130b; }
 .cat-tile.thought { background: #1f3a5f; color: #f3ead6; }
 .cat-tile.misc { background: #c79a2b; color: #1c130b; }
+.cat-tile.stats { background: #17695f; color: #f3ead6; }
 .cat-tile .n { font-family: var(--condensed); font-size: 88px; line-height: 0.8; opacity: 0.22; position: absolute; right: 18px; top: 18px; }
 .cat-tile .t { position: relative; font-family: var(--display); font-size: clamp(34px, 3.6vw, 48px); line-height: 1.1; }
 .cat-tile .count { font-family: var(--mono); font-size: 12px; font-weight: 600; letter-spacing: 0.12em; }
