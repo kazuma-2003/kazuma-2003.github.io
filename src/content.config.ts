@@ -21,6 +21,8 @@ const posts = defineCollection({
     draft: z.boolean().default(false),
     // 一度公開してから非公開にした記事
     hidden: z.boolean().default(false),
+    // 記事に添えるデータ（Zenodo の DOI）
+    datasets: z.array(z.string()).default([]),
   }),
 });
 

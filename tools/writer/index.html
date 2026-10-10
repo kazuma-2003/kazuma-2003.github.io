@@ -207,6 +207,12 @@
                 <div class="hint">記事一覧・検索結果・SNS で表示される1〜2文。</div>
               </label>
               <label class="field">
+                <span>データセット（Zenodo の DOI）</span>
+                <textarea id="datasets" rows="2" spellcheck="false" placeholder="例：10.5281/zenodo.1234567（複数あるときは1行に1つ）"></textarea>
+                <div class="hint">Zenodo にアップロードしたデータの DOI を貼ると、記事の末尾にダウンロード・DOI・引用の書き方の枠が出ます。「すべての版」の DOI を貼ると常に最新版を表示します。<button type="button" class="chip small" id="ds-check" style="margin-left:6px">確認する</button></div>
+                <div class="hint" id="ds-result"></div>
+              </label>
+              <label class="field">
                 <span>URL名</span>
                 <input type="text" id="slug" spellcheck="false" />
                 <div class="hint" id="slughint"></div>
@@ -337,6 +343,21 @@ function updateSlugHint() {
 $('slug').addEventListener('input', () => { updateSlugHint(); markDirty(); });
 $('title').addEventListener('input', () => { autosize(); markDirty(); });
 $('description').addEventListener('input', markDirty);
+$('datasets').addEventListener('input', markDirty);
+// DOI が正しいか Zenodo に問い合わせて、題名とファイル数を出す
+$('ds-check').onclick = async () => {
+  const list = $('datasets').value.split(/\n+/).map((x) => x.trim()).filter(Boolean);
+  if (!list.length) { $('ds-result').textContent = 'DOI が入っていません。'; return; }
+  $('ds-result').textContent = 'Zenodo に問い合わせています…（応答に数十秒かかることがあります）';
+  const out = [];
+  for (const q of list) {
+    try {
+      const r = await call('GET', `/api/zenodo?q=${encodeURIComponent(q)}`);
+      out.push(`✓ ${r.title}（${r.files} ファイル${r.version ? `・版 ${r.version}` : ''}）`);
+    } catch (e) { out.push(`✗ ${q}：${e.message}`); }
+  }
+  $('ds-result').innerHTML = out.map(esc).join('<br>');
+};
 // タイトル欄の高さを内容に合わせる（横幅が未確定のときは測らない）
 function autosize() { const t = $('title'); if (!t.clientWidth) return; t.style.height = 'auto'; t.style.height = t.scrollHeight + 'px'; }
 // 横幅が決まった・変わったときにも測り直す
@@ -392,6 +413,7 @@ async function openPost(slug) {
     cur = { slug, status: r.status, source: r.data.source };
     $('title').value = r.data.title ?? '';
     $('description').value = r.data.description ?? '';
+    $('datasets').value = (Array.isArray(r.data.datasets) ? r.data.datasets : []).join('\n'); $('ds-result').textContent = '';
     $('slug').value = slug;
     category = r.data.category ?? ''; tags = Array.isArray(r.data.tags) ? [...r.data.tags] : [];
     renderCats(); renderTags();
@@ -413,6 +435,7 @@ async function newPost({ title = '', description = '', markdown = '', source = '
   const same = source && posts.find((p) => p.source === source);
   $('title').value = title;
   $('description').value = description;
+  $('datasets').value = ''; $('ds-result').textContent = '';
   $('slug').value = uniqueSlug();
   category = ''; tags = [];
   renderCats(); renderTags();
@@ -434,6 +457,7 @@ async function save() {
   const payload = {
     originalSlug: cur.slug, slug: $('slug').value.trim(), title: $('title').value, description: $('description').value,
     category, tags, body: editor.getMarkdown(), source: cur.source,
+    datasets: $('datasets').value.split(/\n+/).map((x) => x.trim()).filter(Boolean),
   };
   if (!payload.category) { $('info').open = true; note('err', '分類を選んでください（記事の情報）。'); return false; }
   busy('保存しています…');

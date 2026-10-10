@@ -69,6 +69,7 @@ function serialize(d, body) {
     `tags: ${JSON.stringify(d.tags ?? [])}`,
     `draft: ${!!d.draft}`,
     ...(d.hidden ? ['hidden: true'] : []),
+    ...(d.datasets?.length ? [`datasets: ${JSON.stringify(d.datasets)}`] : []),
     ...(d.source ? [`source: ${q(d.source)}`] : []),
     '---',
     '',
@@ -218,6 +219,21 @@ const api = {
     return { categories: categories(), tags: [...new Set(posts.flatMap((p) => p.tags))], today: today(), site: SITE, blog: BLOG };
   },
 
+  // 管理画面の「確認する」：DOI から Zenodo のレコードを引く
+  async 'GET /api/zenodo'(req, url) {
+    const q = url.searchParams.get('q') ?? '';
+    const m = q.match(/zenodo\.(\d+)/i) ?? q.match(/zenodo\.org\/(?:records|record)\/(\d+)/i) ?? q.match(/^(\d{5,})$/);
+    if (!m) throw new UserError('Zenodo の DOI（10.5281/zenodo.数字）ではないようです。');
+    const res = await fetch(`https://zenodo.org/api/records/${m[1]}`, {
+      headers: { 'User-Agent': 'sekai-keizai-ronko/1.0 (+https://kazuma-2003.github.io)', Accept: 'application/json' },
+      signal: AbortSignal.timeout(45000),
+    }).catch(() => null);
+    if (!res) throw new UserError('Zenodo に接続できませんでした。');
+    if (!res.ok) throw new UserError(res.status === 404 ? 'Zenodo に見つかりません（公開前の下書きかもしれません）。' : `Zenodo の応答：${res.status}`);
+    const r = await res.json();
+    return { title: r.metadata?.title ?? '(題名なし)', version: r.metadata?.version ?? '', files: (r.files ?? []).length, doi: r.doi };
+  },
+
   async 'GET /api/posts'() {
     return { posts: await listPosts() };
   },
@@ -291,6 +307,7 @@ const api = {
       tags: (p.tags ?? []).map((t) => String(t).trim()).filter(Boolean),
       draft: !published,
       hidden: !published && !!prev.hidden,
+      datasets: (p.datasets ?? []).map((x) => String(x).trim()).filter(Boolean),
       source: p.source || prev.source,
     };
     writeFileSync(join(published ? POSTS : PRIVATE, `${p.slug}.md`), serialize(data, body));

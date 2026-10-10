@@ -350,6 +350,46 @@ section.block { padding: 80px 0; border-bottom: 1.5px solid var(--ink); }
 .prose sup a { text-decoration: none; font-family: var(--mono); font-weight: 600; padding: 0 0.15em; }
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
 
+/* データセット（Zenodo） */
+.data-badge { font-family: var(--mono); font-size: 10.5px; font-weight: 600; letter-spacing: 0.1em; padding: 0 7px; border-radius: 3px; background: #17695f; color: #f3ead6; }
+.datasets { margin-top: 48px; display: grid; gap: 24px; }
+.dataset { border: 2px solid var(--ink); background: var(--paper); box-shadow: 6px 6px 0 #17695f; padding: 22px 24px 20px; }
+.ds-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+.ds-head .label { margin: 0; color: #17695f; }
+@media (prefers-color-scheme: dark) { .ds-head .label { color: #6fc2b4; } }
+.doi-badge { display: inline-flex; font-family: var(--mono); font-size: 12px; text-decoration: none; border: 1.5px solid var(--ink); border-radius: 3px; overflow: hidden; }
+.doi-badge span { background: var(--ink); color: var(--paper); padding: 1px 7px; font-weight: 600; }
+.doi-badge { padding-right: 8px; gap: 8px; }
+.doi-badge:hover { background: var(--paper-2); }
+.ds-title { font-family: var(--display); font-weight: 400; font-size: 21px; line-height: 1.45; margin: 12px 0 10px; }
+.ds-meta { display: flex; flex-wrap: wrap; gap: 4px 20px; margin: 0 0 14px; font-size: 13px; }
+.ds-meta div { display: flex; gap: 6px; }
+.ds-meta dt { font-family: var(--mono); color: var(--muted); }
+.ds-meta dd { margin: 0; }
+.ds-meta a { color: var(--rust); }
+.ds-files { list-style: none; padding: 0; margin: 0 0 16px; display: grid; gap: 8px; }
+.ds-file {
+  display: grid; grid-template-columns: auto 1fr auto auto; align-items: center; gap: 12px; text-decoration: none;
+  border: 2px solid var(--ink); border-radius: 4px; padding: 9px 12px; background: var(--paper-2); transition: background 0.12s, transform 0.12s;
+}
+.ds-file:hover { background: #17695f; color: #f3ead6; transform: translate(-1px, -1px); }
+.ds-file .ext { font-family: var(--mono); font-size: 11px; font-weight: 600; background: #17695f; color: #f3ead6; padding: 2px 6px; border-radius: 3px; }
+.ds-file:hover .ext { background: #f3ead6; color: #17695f; }
+.ds-file .fname { font-weight: 700; overflow-wrap: anywhere; }
+.ds-file .fsize { font-family: var(--mono); font-size: 12px; opacity: 0.75; }
+.ds-file .dl { font-weight: 700; font-size: 13px; white-space: nowrap; }
+.ds-cite { border-top: 1.5px dashed var(--line); padding-top: 12px; }
+.ds-cite-head { display: flex; justify-content: space-between; align-items: center; font-family: var(--mono); font-size: 12px; color: var(--muted); }
+.ds-copy { font: inherit; font-size: 12px; font-weight: 600; border: 1.5px solid var(--ink); background: transparent; color: var(--ink); border-radius: 3px; padding: 1px 10px; cursor: pointer; }
+.ds-copy:hover { background: var(--paper-2); }
+.ds-cite p { font-family: var(--mono); font-size: 12.5px; line-height: 1.7; margin: 6px 0 0; overflow-wrap: anywhere; color: var(--ink-2); }
+.ds-more { display: inline-block; margin-top: 12px; font-size: 13px; font-weight: 700; color: var(--rust); }
+.ds-fallback { margin: 0 0 16px; }
+@media (max-width: 600px) {
+  .ds-file { grid-template-columns: auto 1fr; }
+  .ds-file .fsize, .ds-file .dl { grid-column: 2; }
+}
+
 /* 共有ボタン */
 .share { margin-top: 48px; border: 2px solid var(--ink); padding: 22px 24px 24px; background: var(--paper); box-shadow: 6px 6px 0 var(--ink); }
 .share-title { font-family: var(--mono); font-size: 12px; font-weight: 600; letter-spacing: 0.14em; color: var(--rust); margin: 0 0 12px; }
