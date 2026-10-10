@@ -86,12 +86,3 @@ export function formatBytes(n: number): string {
   if (n >= 1024) return `${Math.round(n / 1024)} KB`;
   return `${n} B`;
 }
-
-// 引用の書き方（APA 形式に近い形）
-export function citation(d: Dataset, fallbackAuthor: string): string {
-  const who = d.creators?.length ? d.creators.join(', ') : fallbackAuthor;
-  const year = d.date ? d.date.slice(0, 4) : '';
-  const ver = d.version ? ` (Version ${d.version})` : '';
-  const head = year ? `${who} (${year}).` : who.endsWith('.') ? who : `${who}.`;
-  return `${head} ${d.title ?? 'Dataset'}${ver} [Data set]. Zenodo. ${d.doiUrl}`;
-}
