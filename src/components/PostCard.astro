@@ -18,6 +18,7 @@ const href = `/posts/${post.id}/`;
         <time datetime={isoDate(d.date)}>{dotDate(d.date)}</time>
         <span>約{readingMinutes(post.body)}分</span>
         {d.tags.map((t) => <span>#{t}</span>)}
+        {d.datasets.length > 0 && <span class="data-badge">DATA</span>}
         {d.draft && <span class="draft">{d.hidden ? '非公開' : '下書き'}</span>}
       </div>
       <h3>{d.title}</h3>
@@ -31,6 +32,7 @@ const href = `/posts/${post.id}/`;
       <span class={`chip ${cls}`}>{d.category}</span>
       <time datetime={isoDate(d.date)}>{dotDate(d.date)}</time>
       {no && <span>NO.{pad2(no)}</span>}
+      {d.datasets.length > 0 && <span class="data-badge">DATA</span>}
       {d.draft && <span class="draft">{d.hidden ? '非公開' : '下書き'}</span>}
     </div>
     <h4>{d.title}</h4>
