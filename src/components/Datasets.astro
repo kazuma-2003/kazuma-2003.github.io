@@ -1,7 +1,8 @@
 ---
-// 記事に添えるデータセットの枠（Zenodo）。ダウンロード、DOI、引用の書き方を出す。
-import { getDataset, formatBytes, citation } from '../zenodo';
-import { AUTHOR } from '../consts';
+// 記事に添えるデータセットの枠（Zenodo）。ダウンロード、DOI、引用の案内を出す。
+// ブログはペンネームで運営し、Zenodo の作成者（学術用の本名）は表示しない。
+// 引用文も作成者名を含むため載せず、DOI のコピーと Zenodo の Citation 欄への案内にする。
+import { getDataset, formatBytes } from '../zenodo';
 
 interface Props { dois: string[] }
 const { dois } = Astro.props;
@@ -19,7 +20,6 @@ const ext = (name: string) => (name.split('.').pop() ?? '').toUpperCase();
         <h2 class="ds-title">{d.title ?? 'この記事のデータ'}</h2>
         {d.ok && (
           <dl class="ds-meta">
-            {d.creators?.length ? <div><dt>作成者</dt><dd>{d.creators.join('、')}</dd></div> : null}
             {d.date && <div><dt>公開日</dt><dd>{d.date.replaceAll('-', '.')}</dd></div>}
             {d.version && <div><dt>版</dt><dd>{d.version}</dd></div>}
             {d.license && <div><dt>使用条件</dt><dd>{d.license.url ? <a href={d.license.url} target="_blank" rel="noopener">{d.license.label}</a> : d.license.label}</dd></div>}
@@ -42,8 +42,8 @@ const ext = (name: string) => (name.split('.').pop() ?? '').toUpperCase();
           <p class="ds-fallback"><a class="btn small" href={d.html} target="_blank" rel="noopener">Zenodo でデータを見る →</a></p>
         )}
         <div class="ds-cite">
-          <div class="ds-cite-head"><span>引用するときは</span><button type="button" class="ds-copy" data-cite={citation(d, AUTHOR)}>コピー</button></div>
-          <p>{citation(d, AUTHOR)}</p>
+          <div class="ds-cite-head"><span>引用するときは</span><button type="button" class="ds-copy" data-cite={d.doiUrl}>DOI をコピー</button></div>
+          <p>DOI（{d.doiUrl}）を示してください。正式な引用の書き方（APA など各形式）は、Zenodo のページの「Citation」欄で確認できます。</p>
         </div>
         <a class="ds-more" href={d.html} target="_blank" rel="noopener">Zenodo のページで詳しく見る（すべての版・説明） →</a>
       </div>
@@ -59,7 +59,7 @@ const ext = (name: string) => (name.split('.').pop() ?? '').toUpperCase();
       b.textContent = 'コピーしました';
       setTimeout(() => { b.textContent = t; }, 2000);
     } catch {
-      window.prompt('この文をコピーしてください', b.dataset.cite ?? '');
+      window.prompt('この DOI をコピーしてください', b.dataset.cite ?? '');
     }
   }));
 </script>
