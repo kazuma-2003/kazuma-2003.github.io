@@ -491,6 +491,10 @@ async function setMode(m) {
 $('mode-edit').onclick = () => setMode('edit');
 $('mode-preview').onclick = async () => {
   if (dirty || !cur.slug) { if (!(await save())) return; }
+  busy('プレビューを準備しています…');
+  const blog = await call('GET', '/api/blog').catch(() => ({ ok: false }));
+  busy('');
+  if (!blog.ok) { note('err', 'プレビュー用のサーバーを起動できませんでした。管理画面（黒い画面）を閉じて、起動し直してください。'); return; }
   setMode('preview');
   await new Promise((ok) => setTimeout(ok, 600)); // 開発サーバーが保存を読み込むのを待つ
   $('preview').src = `${meta.blog}/posts/${cur.slug}/?t=${Date.now()}`;

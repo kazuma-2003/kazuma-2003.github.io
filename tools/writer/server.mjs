@@ -7,6 +7,7 @@
 //   public/images/<slug>/           記事の画像（公開中の記事のものだけ Git に載せる）
 //   trash/<日時>-<slug>/            削除した記事（Git に載せない。手で戻せる）
 import { createServer } from 'node:http';
+import { createConnection } from 'node:net';
 import { spawn, execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import {
@@ -189,6 +190,7 @@ async function moveArticle(from, to, content) {
 
 // 手元の開発サーバーで記事が表示できることを確かめる（壊れた記事を公開しないため）
 async function checkRenders(slug, file) {
+  if (!(await ensureBlog())) throw new Error('ブログの確認用サーバーを起動できませんでした。管理画面を閉じて、起動し直してください。');
   for (let i = 0; i < 20; i++) {
     const r = await fetch(`${BLOG}/posts/${slug}/`).catch(() => null);
     if (r?.ok) return;
@@ -232,6 +234,11 @@ const api = {
     if (!res.ok) throw new UserError(res.status === 404 ? 'Zenodo に見つかりません（公開前の下書きかもしれません）。' : `Zenodo の応答：${res.status}`);
     const r = await res.json();
     return { title: r.metadata?.title ?? '(題名なし)', version: r.metadata?.version ?? '', files: (r.files ?? []).length, doi: r.doi };
+  },
+
+  // プレビューの前に、確認用サーバーが動いていることを確かめる（止まっていれば起動し直す）
+  async 'GET /api/blog'() {
+    return { ok: await ensureBlog() };
   },
 
   async 'GET /api/posts'() {
@@ -442,8 +449,37 @@ const server = createServer(async (req, res) => {
 
 // ---- 起動 ----
 
-async function blogRunning() {
-  try { return (await fetch(BLOG)).ok; } catch { return false; }
+// 確認用サーバー（プレビュー・公開前の表示確認に使う）が動いているか。ページの描画は遅いことがあるので、
+// HTTP ではなく「ポートが開いているか」で判定する（遅いだけのサーバーを止まっていると誤判定しないため）。
+function blogPortOpen() {
+  return new Promise((resolve) => {
+    // localhost は IPv6（::1）で待ち受けることがあるので、両方を試す名前で問い合わせる
+    const sock = createConnection({ host: 'localhost', port: BLOG_PORT, autoSelectFamily: true });
+    const done = (v) => { sock.destroy(); resolve(v); };
+    sock.once('connect', () => done(true));
+    sock.once('error', () => done(false));
+    sock.setTimeout(2000, () => done(false));
+  });
+}
+
+// 確認用サーバーが止まっていれば起動し直す（起動時・定期的・プレビューや公開の前に呼ぶ）。
+// 他で動いているサーバーを借りていて、それが止まった場合も自分で立ち上げ直す。
+let dev = null;
+let starting = null;
+function ensureBlog() {
+  starting ??= (async () => {
+    if (await blogPortOpen()) return true;
+    if (!dev || dev.exitCode !== null) {
+      console.log('  ブログの確認用サーバーを起動しています…');
+      dev = spawn(`npm run dev -- --port ${BLOG_PORT}`, { cwd: ROOT, shell: true, stdio: 'ignore' });
+    }
+    for (let i = 0; i < 120; i++) {
+      if (await blogPortOpen()) return true;
+      await sleep(500);
+    }
+    return false;
+  })().finally(() => { starting = null; });
+  return starting;
 }
 
 const openBrowser = () => { if (!process.argv.includes('--no-open')) execFile('cmd', ['/c', 'start', '', `http://localhost:${PORT}`]); };
@@ -464,10 +500,8 @@ if (!existsSync(join(HERE, 'dist', 'editor.js'))) {
   await promisify(execFile)('npm', ['run', 'build:editor'], { cwd: ROOT, shell: true });
 }
 
-let dev = null;
-if (!(await blogRunning())) {
-  dev = spawn('npm', ['run', 'dev', '--', '--port', String(BLOG_PORT)], { cwd: ROOT, shell: true, stdio: 'ignore' });
-}
+ensureBlog();
+setInterval(() => { ensureBlog(); }, 15000);
 const stopDev = () => {
   if (dev?.pid) { try { execFile('taskkill', ['/pid', String(dev.pid), '/T', '/F']); } catch { /* 終了済み */ } }
   rmSync(STAGING, { recursive: true, force: true });
@@ -476,7 +510,7 @@ process.on('SIGINT', () => { stopDev(); process.exit(0); });
 process.on('exit', stopDev);
 
 server.listen(PORT, '127.0.0.1', async () => {
-  for (let i = 0; i < 60 && !(await blogRunning()); i++) await new Promise((r) => setTimeout(r, 500));
+  await ensureBlog();
   console.log('');
   console.log(`  ブログの管理画面を開きました： http://localhost:${PORT}`);
   console.log('  使い終わったら、この黒い画面を閉じてください。');
