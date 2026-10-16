@@ -189,8 +189,16 @@ async function moveArticle(from, to, content) {
 }
 
 // 手元の開発サーバーで記事が表示できることを確かめる（壊れた記事を公開しないため）
+// 確認用サーバーに記事を読み込み直させる（変更の見張りが止まっていても、保存した内容を確実に反映させるため）
+async function refreshBlog() {
+  if (!(await ensureBlog())) return false;
+  const r = await fetch(`${BLOG}/__refresh-content`, { method: 'POST', signal: AbortSignal.timeout(90000) }).catch(() => null);
+  return !!r?.ok;
+}
+
 async function checkRenders(slug, file) {
   if (!(await ensureBlog())) throw new Error('ブログの確認用サーバーを起動できませんでした。管理画面を閉じて、起動し直してください。');
+  await refreshBlog();
   for (let i = 0; i < 20; i++) {
     const r = await fetch(`${BLOG}/posts/${slug}/`).catch(() => null);
     if (r?.ok) return;
@@ -238,7 +246,8 @@ const api = {
 
   // プレビューの前に、確認用サーバーが動いていることを確かめる（止まっていれば起動し直す）
   async 'GET /api/blog'() {
-    return { ok: await ensureBlog() };
+    if (!(await ensureBlog())) return { ok: false };
+    return { ok: true, refreshed: await refreshBlog() };
   },
 
   async 'GET /api/posts'() {

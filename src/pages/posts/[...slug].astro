@@ -3,6 +3,7 @@ import Base from '../../layouts/Base.astro';
 import ShareButtons from '../../components/ShareButtons.astro';
 import Subscribe from '../../components/Subscribe.astro';
 import Datasets from '../../components/Datasets.astro';
+import Title from '../../components/Title.astro';
 import { render } from 'astro:content';
 import { getPosts, issueNumbers, dotDate, isoDate, pad2, readingMinutes, type Post } from '../../lib';
 import { CATEGORY_INFO, type Category } from '../../consts';
@@ -32,7 +33,7 @@ const cls = CATEGORY_INFO[d.category as Category]?.cls ?? 'misc';
         <span>約{readingMinutes(post.body)}分で読めます</span>
         {d.draft && <span class="draft">{d.hidden ? '非公開' : '下書き'}</span>}
       </div>
-      <h1>{d.title}</h1>
+      <h1><Title text={d.title} /></h1>
       {d.tags.length > 0 && (
         <div class="tags">{d.tags.map((t) => <a href={`/tags/${encodeURIComponent(t)}/`}>#{t}</a>)}</div>
       )}

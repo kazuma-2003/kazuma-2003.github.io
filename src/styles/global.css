@@ -303,6 +303,10 @@ section.block { padding: 80px 0; border-bottom: 1.5px solid var(--ink); }
 .art-hero .tags a:hover { border-style: solid; background: var(--paper); }
 .article { max-width: 760px; margin: 0 auto; padding: 56px 20px 40px; }
 
+/* 題名：行の長さをそろえて最後の数文字だけが次の行に落ちないようにし、ローマ数字は見出しの書体のアルファベットで */
+.art-hero h1, .feature h3, .card h4, .pager span { text-wrap: balance; word-break: auto-phrase; }
+.roman { letter-spacing: 0.04em; margin-left: 0.14em; }
+
 /* 本文 */
 .prose {
   font-family: var(--serif); font-size: 18px; line-height: 2.05; letter-spacing: 0.02em;

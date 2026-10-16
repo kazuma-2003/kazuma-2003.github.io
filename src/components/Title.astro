@@ -1,0 +1,12 @@
+---
+// 記事の題名。見出し用の書体（Dela Gothic One）にはローマ数字（Ⅰ・Ⅱ…）の字が無く、細い別の書体で
+// 表示されてしまうので、ローマ数字は見出しの書体にあるアルファベット（I・II…）で表示する。
+interface Props { text: string }
+const { text } = Astro.props;
+const ROMAN: Record<string, string> = {
+  'Ⅰ': 'I', 'Ⅱ': 'II', 'Ⅲ': 'III', 'Ⅳ': 'IV', 'Ⅴ': 'V', 'Ⅵ': 'VI', 'Ⅶ': 'VII', 'Ⅷ': 'VIII', 'Ⅸ': 'IX', 'Ⅹ': 'X', 'Ⅺ': 'XI', 'Ⅻ': 'XII',
+  'ⅰ': 'i', 'ⅱ': 'ii', 'ⅲ': 'iii', 'ⅳ': 'iv', 'ⅴ': 'v', 'ⅵ': 'vi', 'ⅶ': 'vii', 'ⅷ': 'viii', 'ⅸ': 'ix', 'ⅹ': 'x',
+};
+const parts = text.split(/([Ⅰ-Ⅻⅰ-ⅹ])/).filter(Boolean);
+---
+{parts.map((p) => (ROMAN[p] ? <span class="roman" aria-label={p}>{ROMAN[p]}</span> : p))}
