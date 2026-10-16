@@ -1,6 +1,7 @@
 ---
 // 記事カード。feature は号数の帯付きの大きなカード（トップの最新記事など）。
 import { CATEGORY_INFO, type Category } from '../consts';
+import Title from './Title.astro';
 import { dotDate, isoDate, pad2, plainText, readingMinutes, type Post } from '../lib';
 
 interface Props { post: Post; no?: number; feature?: boolean }
@@ -21,7 +22,7 @@ const href = `/posts/${post.id}/`;
         {d.datasets.length > 0 && <span class="data-badge">DATA</span>}
         {d.draft && <span class="draft">{d.hidden ? '非公開' : '下書き'}</span>}
       </div>
-      <h3>{d.title}</h3>
+      <h3><Title text={d.title} /></h3>
       <p>{plainText(d.description)}</p>
       <span class="more">続きを読む →</span>
     </div>
@@ -35,7 +36,7 @@ const href = `/posts/${post.id}/`;
       {d.datasets.length > 0 && <span class="data-badge">DATA</span>}
       {d.draft && <span class="draft">{d.hidden ? '非公開' : '下書き'}</span>}
     </div>
-    <h4>{d.title}</h4>
+    <h4><Title text={d.title} /></h4>
     <p>{plainText(d.description)}</p>
   </a>
 )}
