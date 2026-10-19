@@ -2,7 +2,7 @@
 // 記事カード。feature は号数の帯付きの大きなカード（トップの最新記事など）。
 import { CATEGORY_INFO, type Category } from '../consts';
 import Title from './Title.astro';
-import { dotDate, isoDate, pad2, plainText, readingMinutes, type Post } from '../lib';
+import { dotDate, isoDate, pad2, plainText, type Post } from '../lib';
 
 interface Props { post: Post; no?: number; feature?: boolean }
 const { post, no, feature = false } = Astro.props;
@@ -17,7 +17,6 @@ const href = `/posts/${post.id}/`;
       <div class="meta">
         <span class={`chip ${cls}`}>{d.category}</span>
         <time datetime={isoDate(d.date)}>{dotDate(d.date)}</time>
-        <span>約{readingMinutes(post.body)}分</span>
         {d.tags.map((t) => <span>#{t}</span>)}
         {d.datasets.length > 0 && <span class="data-badge">DATA</span>}
         {d.draft && <span class="draft">{d.hidden ? '非公開' : '下書き'}</span>}

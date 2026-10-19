@@ -5,7 +5,7 @@ import Subscribe from '../../components/Subscribe.astro';
 import Datasets from '../../components/Datasets.astro';
 import Title from '../../components/Title.astro';
 import { render } from 'astro:content';
-import { getPosts, issueNumbers, dotDate, isoDate, pad2, readingMinutes, type Post } from '../../lib';
+import { getPosts, issueNumbers, dotDate, isoDate, pad2, type Post } from '../../lib';
 import { CATEGORY_INFO, type Category } from '../../consts';
 
 export async function getStaticPaths() {
@@ -30,7 +30,6 @@ const cls = CATEGORY_INFO[d.category as Category]?.cls ?? 'misc';
         <a class={`chip ${cls}`} href={`/?c=${encodeURIComponent(d.category)}#all`}>{d.category}</a>
         <time class="stamp date" datetime={isoDate(d.date)}>{dotDate(d.date)}</time>
         {d.updated && <span>{dotDate(d.updated)} 更新</span>}
-        <span>約{readingMinutes(post.body)}分で読めます</span>
         {d.draft && <span class="draft">{d.hidden ? '非公開' : '下書き'}</span>}
       </div>
       <h1><Title text={d.title} /></h1>
