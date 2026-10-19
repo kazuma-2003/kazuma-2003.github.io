@@ -29,8 +29,3 @@ export function isoDate(d: Date): string {
   return d.toISOString().slice(0, 10);
 }
 
-// 日本語本文の読了目安（1分あたり約500字）。
-export function readingMinutes(body: string | undefined): number {
-  const chars = (body ?? '').replace(/\s+/g, '').length;
-  return Math.max(1, Math.round(chars / 500));
-}
