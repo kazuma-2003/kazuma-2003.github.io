@@ -10,9 +10,8 @@ const ready = NEWSLETTER.action !== '';
 <div class:list={['subscribe-box', { compact }]} id={compact ? undefined : 'subscribe-form'}>
   {ready ? (
     <div class="sb-text">
-      <div class="label">NEWSLETTER ── メールで購読</div>
-      <h2>新しい論考を、メールで受け取る。</h2>
-      <p>記事を公開すると、登録したメールアドレスに自動でお知らせが届きます。無料・いつでも配信を停止できます。</p>
+      <div class="label">NEWSLETTER</div>
+      <h2>メール購読</h2>
     </div>
   ) : (
     <div class="sb-text">
@@ -26,7 +25,6 @@ const ready = NEWSLETTER.action !== '';
       <label class="sr-only" for={compact ? 'sb-email-c' : 'sb-email'}>メールアドレス</label>
       <input id={compact ? 'sb-email-c' : 'sb-email'} type="email" name={NEWSLETTER.emailField} required autocomplete="email" placeholder="メールアドレス" />
       <button class="btn" type="submit">メールで購読する</button>
-      <p class="sb-note">メールアドレスは新着記事のお知らせにだけ使います。配信は follow.it を通じて行います。</p>
     </form>
   ) : (
     <div class="sb-form">
