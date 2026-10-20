@@ -4,7 +4,7 @@ import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
 
 const [slug, category = '理論'] = process.argv.slice(2);
 if (!slug || !/^[a-z0-9-]+$/.test(slug)) {
-  console.error('使い方: npm run new -- <半角英数とハイフンのファイル名> [経済分析|理論|評論|雑記|統計]');
+  console.error('使い方: npm run new -- <半角英数とハイフンのファイル名> [経済分析|理論|評論|考察|雑記|統計]');
   process.exit(1);
 }
 const path = `src/content/private/${slug}.md`;

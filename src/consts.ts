@@ -20,7 +20,7 @@ export const NEWSLETTER = {
 };
 
 // 記事の分類。frontmatter の category はこのどれか。
-export const CATEGORIES = ['経済分析', '理論', '評論', '雑記', '統計'] as const;
+export const CATEGORIES = ['経済分析', '理論', '評論', '考察', '雑記', '統計'] as const;
 export type Category = (typeof CATEGORIES)[number];
 
 // 分類ごとの色（CSS のクラス名）
@@ -28,6 +28,7 @@ export const CATEGORY_INFO: Record<Category, { cls: string }> = {
   経済分析: { cls: 'econ' },
   理論: { cls: 'thought' },
   評論: { cls: 'critique' },
+  考察: { cls: 'study' },
   雑記: { cls: 'misc' },
   統計: { cls: 'stats' },
 };
