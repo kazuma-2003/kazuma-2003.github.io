@@ -1,5 +1,6 @@
 import { getCollection, type CollectionEntry } from 'astro:content';
-export { plainText } from './plain-text.mjs';
+import { plainText } from './plain-text.mjs';
+export { plainText };
 
 export type Post = CollectionEntry<'posts'>;
 
@@ -29,3 +30,20 @@ export function isoDate(d: Date): string {
   return d.toISOString().slice(0, 10);
 }
 
+// 本文の文字数（読者に見える文字だけ。空白・改行・Markdown の記号・画像・URL は数えない。数式は読める文字に直して数える）
+export function charCount(md: string): number {
+  const text = plainText(
+    md
+      .replace(/<!--[\s\S]*?-->/g, '')
+      .replace(/^(```|~~~).*$/gm, '')
+      .replace(/!\[[^\]]*\]\([^)]*\)/g, '')
+      .replace(/\[([^\]]*)\]\([^)]*\)/g, '$1')
+      .replace(/\[\^[^\]]*\]:?/g, '')
+      .replace(/<[^>]+>/g, '')
+      .replace(/^\s*\|?\s*:?-{2,}:?\s*(\|\s*:?-{2,}:?\s*)*\|?\s*$/gm, '')
+      .replace(/^\s*(#{1,6}|>+|[-*+]|\d+[.)])\s+/gm, '')
+      .replace(/^\s*([-*_]\s*){3,}$/gm, '')
+      .replace(/[|*_~`]/g, ''),
+  );
+  return [...text.replace(/\s/g, '')].length;
+}
