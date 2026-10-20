@@ -3,12 +3,14 @@ import Base from '../layouts/Base.astro';
 import PostCard from '../components/PostCard.astro';
 import Subscribe from '../components/Subscribe.astro';
 import HeroMedia from '../components/HeroMedia.astro';
-import { getPosts, issueNumbers, dotDate, pad2 } from '../lib';
+import { getPosts, issueNumbers, dotDate, pad2, charCount } from '../lib';
 import { AUTHOR, CATEGORIES, CATEGORY_INFO, FOUNDED, SITE_TITLE } from '../consts';
 
 const posts = await getPosts();
 const no = issueNumbers(posts);
 const latest = posts[0];
+// 総文字数：公開中の記事（下書き・非公開を除く）の本文の文字数の合計
+const totalChars = posts.filter((p) => !p.data.draft).reduce((n, p) => n + charCount(p.body ?? ''), 0);
 const counts = Object.fromEntries(CATEGORIES.map((c) => [c, posts.filter((p) => p.data.category === c).length]));
 const updated = posts.reduce<Date | null>((m, p) => {
   const d = p.data.updated ?? p.data.date;
@@ -90,7 +92,7 @@ const updated = posts.reduce<Date | null>((m, p) => {
   <div class="stats">
     <div class="wrap">
       <div class="stat"><div class="v">{pad2(posts.length)}</div><div class="k">公開中の論考</div></div>
-      <div class="stat"><div class="v">{pad2(CATEGORIES.length)}</div><div class="k">分類</div></div>
+      <div class="stat"><div class="v">{totalChars.toLocaleString('en-US')}</div><div class="k">総文字数</div></div>
       <div class="stat"><div class="v">{FOUNDED}</div><div class="k">創刊</div></div>
       <div class="stat"><div class="v">{updated ? dotDate(updated).slice(5) : '--'}</div><div class="k">最終更新</div></div>
     </div>
