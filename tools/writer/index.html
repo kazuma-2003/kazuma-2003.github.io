@@ -121,6 +121,11 @@
   .paper .milkdown .ProseMirror h2 { font-size: 22px; }
   .paper .milkdown .ProseMirror h3 { font-size: 18px; }
   .paper .milkdown .ProseMirror p { font-size: 17px; }
+  /* 表の列幅：列の境目をドラッグで変更、ダブルクリックで自動に戻す（table-widths.js） */
+  .paper.cw-edge, .paper.cw-edge *, .paper.cw-dragging, .paper.cw-dragging * { cursor: col-resize !important; }
+  .paper.cw-dragging { user-select: none; }
+  .paper .milkdown table.cw-fixed { table-layout: fixed; width: 100%; }
+  .paper .milkdown table.cw-fixed th, .paper .milkdown table.cw-fixed td { overflow-wrap: anywhere; }
 
   iframe.preview { flex: 1; width: 100%; border: 0; background: #fff; }
 

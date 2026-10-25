@@ -349,6 +349,9 @@ section.block { padding: 80px 0; border-bottom: 1.5px solid var(--ink); }
 }
 .prose th, .prose td { border-bottom: 1px solid var(--line); padding: 0.5em 0.9em; text-align: left; font-variant-numeric: tabular-nums; }
 .prose td:first-child, .prose th:first-child { white-space: nowrap; }
+/* 管理画面で列幅を決めた表（rehype-colwidth）：枠いっぱいに、決めた比率で */
+.prose table.cw { display: table; width: 100%; table-layout: fixed; }
+.prose table.cw td, .prose table.cw th { white-space: normal; overflow-wrap: anywhere; }
 .prose thead th { font-weight: 700; background: var(--ink); color: var(--paper); border-bottom: 0; }
 @media (prefers-color-scheme: dark) { .prose thead th { background: var(--paper-3); color: var(--ink); } }
 .prose tbody tr:nth-child(even) { background: color-mix(in srgb, var(--paper-2) 60%, transparent); }

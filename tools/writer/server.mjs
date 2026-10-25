@@ -414,7 +414,7 @@ const api = {
 };
 
 function firstSentence(body) {
-  const para = body.split(/\n\s*\n/).map((s) => s.trim()).find((s) => s && !/^(#|!\[|\$\$|>|\||-|\*|\d+\.)/.test(s)) ?? '';
+  const para = body.split(/\n\s*\n/).map((s) => s.trim()).find((s) => s && !/^(#|!\[|\$\$|>|\||-|\*|\d+\.|<)/.test(s)) ?? '';
   // 脚注記号・リンク・強調を外し、数式は読める文字に（説明文では数式が組まれないため）
   const t = plainText(para.replace(/\[\^[^\]]+\]/g, '').replace(/\[([^\]]*)\]\([^)]*\)/g, '$1'))
     .replace(/[*`]/g, '').replace(/^[\s　]+/, '');

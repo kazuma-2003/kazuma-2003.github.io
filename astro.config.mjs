@@ -6,6 +6,7 @@ import rehypeKatex from 'rehype-katex';
 import rehypeFigure from './src/plugins/rehype-figure.mjs';
 import rehypeLead from './src/plugins/rehype-lead.mjs';
 import rehypeTidy from './src/plugins/rehype-tidy.mjs';
+import rehypeColwidth from './src/plugins/rehype-colwidth.mjs';
 import contentRefresh from './src/integrations/content-refresh.mjs';
 
 // 公開先。GitHub のユーザーサイト（リポジトリ名 kazuma-2003.github.io）を想定。
@@ -16,7 +17,7 @@ export default defineConfig({
   markdown: {
     processor: unified({
       remarkPlugins: [remarkMath],
-      rehypePlugins: [rehypeKatex, rehypeTidy, rehypeFigure, rehypeLead],
+      rehypePlugins: [rehypeKatex, rehypeTidy, rehypeColwidth, rehypeFigure, rehypeLead],
       remarkRehype: { footnoteLabel: '脚注', footnoteBackLabel: '本文に戻る' },
       // 日本語の文章で -- や引用符が勝手に置き換わらないようにする
       smartypants: false,

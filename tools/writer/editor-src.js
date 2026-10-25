@@ -2,6 +2,8 @@
 import { Crepe } from '@milkdown/crepe';
 import '@milkdown/crepe/theme/common/style.css';
 import '@milkdown/crepe/theme/classic.css';
+import { editorViewCtx } from '@milkdown/kit/core';
+import { attachResizer, currentWidths, extractWidths, injectWidths, restoreWidths, tableWidthsPlugin } from './table-widths.js';
 
 const JA = {
   [Crepe.Feature.Placeholder]: { text: '本文を書く（「/」で見出し・表・数式などを挿入）', mode: 'doc' },
@@ -50,9 +52,10 @@ const JA = {
  */
 window.createEditor = async function createEditor(root, markdown, opts) {
   const upload = opts.upload;
+  const { markdown: body, widths } = extractWidths(markdown);
   const crepe = new Crepe({
     root,
-    defaultValue: markdown,
+    defaultValue: body,
     features: {
       [Crepe.Feature.AI]: false,
       [Crepe.Feature.TopBar]: false,
@@ -70,9 +73,14 @@ window.createEditor = async function createEditor(root, markdown, opts) {
   if (opts.onChange) {
     crepe.on((l) => l.markdownUpdated((_ctx, md, prev) => { if (md !== prev) opts.onChange(); }));
   }
+  crepe.editor.use(tableWidthsPlugin);
   await crepe.create();
+  const view = () => crepe.editor.action((ctx) => ctx.get(editorViewCtx));
+  restoreWidths(view(), widths);
+  attachResizer(root, view, opts.onChange);
   return {
-    getMarkdown: () => crepe.getMarkdown(),
+    getMarkdown: () => injectWidths(crepe.getMarkdown(), currentWidths(view())),
+    view, // 動作確認用
     destroy: () => crepe.destroy(),
   };
 };
