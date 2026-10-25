@@ -438,8 +438,23 @@ function sendFile(res, file) {
 }
 const safe = (p) => !p.split('/').some((s) => s === '..' || s.includes('\\'));
 
+// このPCの管理画面のページから来た要求だけを受け付ける。
+// Host を見ないと、よそのサイトが自分のドメインを 127.0.0.1 に向ける手口（DNS リバインディング）で下書きを読める。
+// Origin・Sec-Fetch-Site を見ないと、よそのサイトから公開・削除などを送り付けられる（CSRF）。
+const ALLOWED_HOSTS = new Set([`localhost:${PORT}`, `127.0.0.1:${PORT}`]);
+const ALLOWED_ORIGINS = new Set([...ALLOWED_HOSTS].map((h) => `http://${h}`));
+function trusted(req, url) {
+  if (!ALLOWED_HOSTS.has(req.headers.host ?? '')) return false;
+  if (req.method === 'GET' && !url.pathname.startsWith('/api/')) return true; // 画面そのものは、どこから開いてもよい
+  const origin = req.headers.origin;
+  if (origin && !ALLOWED_ORIGINS.has(origin)) return false;
+  const site = req.headers['sec-fetch-site'];
+  return !site || site === 'same-origin' || site === 'none';
+}
+
 const server = createServer(async (req, res) => {
   const url = new URL(req.url, `http://localhost:${PORT}`);
+  if (!trusted(req, url)) return send(res, 403, { error: 'このPCの管理画面以外からの操作は受け付けません。' });
   const path = decodeURIComponent(url.pathname);
   try {
     const handler = api[`${req.method} ${url.pathname}`];
