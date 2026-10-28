@@ -4,15 +4,19 @@ export { plainText };
 
 export type Post = CollectionEntry<'posts'>;
 
-// 下書き（draft: true）は本番ビルドでは除外し、開発中だけ表示する。
+// 公表した日時（初めて公開したとき管理画面が published に書く。無い記事は日付で代用）
+const publishedAt = (p: Post) => (p.data.published ?? p.data.date).valueOf();
+
+// 下書き（draft: true）は本番ビルドでは除外し、開発中だけ表示する。並びは公表の新しい順。
 export async function getPosts(): Promise<Post[]> {
   const all = await getCollection('posts', (p) => import.meta.env.DEV || !p.data.draft);
-  return all.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+  return all.sort((a, b) => publishedAt(b) - publishedAt(a));
 }
 
-// 記事の号数（古い順に 1, 2, 3…）。getPosts() の並び（新しい順）を受け取る。
+// 記事の号数：公表した順に 1, 2, 3…。下書きには振らない（プレビューで公開中の記事の番号がずれないように）。
 export function issueNumbers(posts: Post[]): Map<string, number> {
-  return new Map(posts.map((p, i) => [p.id, posts.length - i]));
+  const out = posts.filter((p) => !p.data.draft).sort((a, b) => publishedAt(a) - publishedAt(b));
+  return new Map(out.map((p, i) => [p.id, i + 1]));
 }
 
 export const pad2 = (n: number) => String(n).padStart(2, '0');

@@ -66,6 +66,7 @@ function serialize(d, body) {
     `description: ${q(d.description)}`,
     `date: ${d.date}`,
     ...(d.updated ? [`updated: ${d.updated}`] : []),
+    ...(d.published ? [`published: ${d.published}`] : []),
     `category: ${d.category}`,
     `tags: ${JSON.stringify(d.tags ?? [])}`,
     `draft: ${!!d.draft}`,
@@ -79,6 +80,8 @@ function serialize(d, body) {
 }
 
 const today = () => new Date().toLocaleDateString('sv-SE');
+// 日本時間の日時（例 2026-10-28T09:15:00+09:00）
+const nowJST = () => `${new Date(Date.now() + 9 * 3600e3).toISOString().slice(0, 19)}+09:00`;
 
 function locate(slug) {
   if (existsSync(join(POSTS, `${slug}.md`))) return { file: join(POSTS, `${slug}.md`), published: true };
@@ -319,6 +322,7 @@ const api = {
       description: (p.description ?? '').trim() || firstSentence(body),
       date: prev.date ? String(prev.date) : today(),
       updated: prev.updated ? String(prev.updated) : undefined,
+      published: prev.published ? String(prev.published) : undefined,
       category: p.category,
       tags: (p.tags ?? []).map((t) => String(t).trim()).filter(Boolean),
       draft: !published,
@@ -343,6 +347,7 @@ const api = {
       message = `記事を更新: ${data.title}`;
     } else {
       if (!data.hidden) data.date = today(); // 初めての公開は公開日を今日に
+      if (!data.published) data.published = nowJST(); // 号数は公表した順に振る（再公開では変えない）
       message = data.hidden ? `記事を再公開: ${data.title}` : `記事を公開: ${data.title}`;
     }
     data.draft = false;

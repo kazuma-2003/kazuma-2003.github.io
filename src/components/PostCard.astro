@@ -12,7 +12,7 @@ const href = `/posts/${post.id}/`;
 ---
 {feature ? (
   <a class="feature" href={href} data-cat={d.category}>
-    <div class="no"><small>NO.</small>{pad2(no ?? 1)}</div>
+    <div class="no"><small>NO.</small>{no ? pad2(no) : '--'}</div>
     <div class="body">
       <div class="meta">
         <span class={`chip ${cls}`}>{d.category}</span>

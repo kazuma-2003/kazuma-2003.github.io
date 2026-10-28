@@ -16,6 +16,8 @@ const posts = defineCollection({
     description: z.string(),
     date: z.coerce.date(),
     updated: z.coerce.date().optional(),
+    // 初めて公開した日時（号数の順番に使う。管理画面が書く）
+    published: z.coerce.date().optional(),
     category: z.enum(CATEGORIES),
     tags: z.array(z.string()).default([]),
     draft: z.boolean().default(false),

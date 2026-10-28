@@ -25,7 +25,7 @@ const cls = CATEGORY_INFO[d.category as Category]?.cls ?? 'misc';
 <Base title={d.title} description={d.description} type="article">
   <section class="art-hero">
     <div class="wrap">
-      <div class="bignum" aria-hidden="true">{pad2(no ?? 1)}</div>
+      <div class="bignum" aria-hidden="true">{no ? pad2(no) : '--'}</div>
       <div class="meta">
         <a class={`chip ${cls}`} href={`/?c=${encodeURIComponent(d.category)}#all`}>{d.category}</a>
         <time class="stamp date" datetime={isoDate(d.date)}>{dotDate(d.date)}</time>
