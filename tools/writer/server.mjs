@@ -27,6 +27,8 @@ const POSTS = join(ROOT, 'src', 'content', 'posts');
 const PRIVATE = join(ROOT, 'src', 'content', 'private');
 const IMAGES = join(ROOT, 'public', 'images');
 const TRASH = join(ROOT, 'trash');
+// 号数の台帳。一度振った号数は記事を消しても使い回さないよう、最後に振った番号を残す（Git に載せる）
+const ISSUES = 'src/data/issues.json';
 const STAGING = mkdtempSync(join(tmpdir(), 'blog-admin-'));
 const PORT = Number(process.env.ADMIN_PORT ?? 4400);
 const BLOG_PORT = Number(process.env.BLOG_PORT ?? 4321);
@@ -67,6 +69,7 @@ function serialize(d, body) {
     `date: ${d.date}`,
     ...(d.updated ? [`updated: ${d.updated}`] : []),
     ...(d.published ? [`published: ${d.published}`] : []),
+    ...(d.no ? [`no: ${d.no}`] : []),
     `category: ${d.category}`,
     `tags: ${JSON.stringify(d.tags ?? [])}`,
     `draft: ${!!d.draft}`,
@@ -80,6 +83,19 @@ function serialize(d, body) {
 }
 
 const today = () => new Date().toLocaleDateString('sv-SE');
+// 次に振る号数：台帳の番号と、手元にある全記事（公開中・下書き・非公開・ゴミ箱）の号数のうち大きい方 + 1
+function nextIssueNo() {
+  let last = 0;
+  try { last = Number(JSON.parse(readFileSync(join(ROOT, ISSUES), 'utf8')).last) || 0; } catch { /* 台帳が無い */ }
+  const files = [POSTS, PRIVATE].flatMap((d) => (existsSync(d) ? readdirSync(d).filter((f) => f.endsWith('.md')).map((f) => join(d, f)) : []));
+  if (existsSync(TRASH)) for (const d of readdirSync(TRASH)) {
+    const dir = join(TRASH, d);
+    if (statSync(dir).isDirectory()) files.push(...readdirSync(dir).filter((f) => f.endsWith('.md')).map((f) => join(dir, f)));
+  }
+  for (const f of files) last = Math.max(last, Number(parse(readFileSync(f, 'utf8')).data.no) || 0);
+  return last + 1;
+}
+
 // 日本時間の日時（例 2026-10-28T09:15:00+09:00）
 const nowJST = () => `${new Date(Date.now() + 9 * 3600e3).toISOString().slice(0, 19)}+09:00`;
 
@@ -323,6 +339,7 @@ const api = {
       date: prev.date ? String(prev.date) : today(),
       updated: prev.updated ? String(prev.updated) : undefined,
       published: prev.published ? String(prev.published) : undefined,
+      no: prev.no ? Number(prev.no) : undefined,
       category: p.category,
       tags: (p.tags ?? []).map((t) => String(t).trim()).filter(Boolean),
       draft: !published,
@@ -341,28 +358,35 @@ const api = {
     if (!loc) throw new UserError('記事が見つかりません。');
     const { data, body } = parse(readFileSync(loc.file, 'utf8'));
     const target = join(POSTS, `${slug}.md`);
-    let message;
+    let message, issue = null;
     if (loc.published) {
       data.updated = today();
       message = `記事を更新: ${data.title}`;
     } else {
       if (!data.hidden) data.date = today(); // 初めての公開は公開日を今日に
-      if (!data.published) data.published = nowJST(); // 号数は公表した順に振る（再公開では変えない）
+      if (!data.published) data.published = nowJST();
+      // 号数は初めて公開したときに振り、以後は変えない（再公開でもそのまま）
+      if (!data.no) { data.no = nextIssueNo(); issue = data.no; }
       message = data.hidden ? `記事を再公開: ${data.title}` : `記事を公開: ${data.title}`;
     }
     data.draft = false;
     data.hidden = false;
     const before = readFileSync(loc.file);
+    const ledger = join(ROOT, ISSUES);
+    const ledgerBefore = existsSync(ledger) ? readFileSync(ledger) : null;
+    if (issue) writeFileSync(ledger, `${JSON.stringify({ last: issue })}
+`);
     if (loc.published) writeFileSync(target, serialize(data, body));
     else await moveArticle(loc.file, target, serialize(data, body));
     try {
       await checkRenders(slug, target);
-      await commitAndPush(message, await articlePaths(slug));
+      await commitAndPush(message, [...(await articlePaths(slug)), ...(issue ? [ISSUES] : [])]);
     } catch (e) {
       // 公開できなかったら元の状態に戻す
       if (loc.published) writeFileSync(target, before);
       else await moveArticle(target, loc.file, before);
-      await git('reset', '-q', '--', ...(await articlePaths(slug))).catch(() => {});
+      if (issue) { if (ledgerBefore) writeFileSync(ledger, ledgerBefore); else rmSync(ledger, { force: true }); }
+      await git('reset', '-q', '--', ...(await articlePaths(slug)), ...(issue ? [ISSUES] : [])).catch(() => {});
       throw new UserError(`公開できませんでした：${e.stderr || e.message}`);
     }
     return { url: `${SITE}/posts/${slug}/` };

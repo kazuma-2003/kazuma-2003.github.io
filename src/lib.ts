@@ -13,10 +13,15 @@ export async function getPosts(): Promise<Post[]> {
   return all.sort((a, b) => publishedAt(b) - publishedAt(a));
 }
 
-// 記事の号数：公表した順に 1, 2, 3…。下書きには振らない（プレビューで公開中の記事の番号がずれないように）。
+// 記事の号数：記事に書かれた no（初めて公開したときに振られ、以後は固定。記事を消しても番号は詰めない）。
+// no が無い公開記事は念のため公表した順に続きの番号を振る。下書きには振らない。
 export function issueNumbers(posts: Post[]): Map<string, number> {
-  const out = posts.filter((p) => !p.data.draft).sort((a, b) => publishedAt(a) - publishedAt(b));
-  return new Map(out.map((p, i) => [p.id, i + 1]));
+  const pub = posts.filter((p) => !p.data.draft);
+  const map = new Map<string, number>();
+  let last = 0;
+  for (const p of pub) if (p.data.no) { map.set(p.id, p.data.no); last = Math.max(last, p.data.no); }
+  for (const p of pub.filter((p) => !p.data.no).sort((a, b) => publishedAt(a) - publishedAt(b))) map.set(p.id, ++last);
+  return map;
 }
 
 export const pad2 = (n: number) => String(n).padStart(2, '0');
